@@ -249,6 +249,8 @@ const overlays = {
 
 function closeAll() {
   Object.values(overlays).forEach(o => { if (o) o.classList.remove('open'); });
+  // 弹层全部关闭后，显示拖尾画布
+  document.getElementById('cursor-fx-canvas').style.display = 'block';
 }
 document.querySelectorAll('.overlay').forEach(ov => {
   ov.addEventListener('click', e => { if (e.target === ov) closeAll(); });
@@ -256,14 +258,17 @@ document.querySelectorAll('.overlay').forEach(ov => {
 
 document.getElementById('hs-mine').addEventListener('click', () => {
   overlays.mine.classList.add('open');
+  document.getElementById('cursor-fx-canvas').style.display = 'none';
   initMine();
 });
 document.getElementById('hs-board').addEventListener('click', () => {
   overlays.board.classList.add('open');
+  document.getElementById('cursor-fx-canvas').style.display = 'none';
   loadGiscus();
 });
 document.getElementById('hs-ai').addEventListener('click', () => {
   overlays.ai.classList.add('open');
+  document.getElementById('cursor-fx-canvas').style.display = 'none';
   setTimeout(() => document.getElementById('aiInput').focus(), 100);
 });
 
