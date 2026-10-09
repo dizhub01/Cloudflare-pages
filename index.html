@@ -184,6 +184,28 @@
   }
   #aiSend:hover { background: rgba(120, 240, 255, 0.3); color: #fff; }
   #aiSend:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ===== YouTube 播放器 ===== */
+  #yt-player {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 256px;              /* 显示尺寸缩小一半 */
+    height: 256px;
+    z-index: 4;
+    border: 2px solid rgba(120, 240, 255, 0.6);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 24px rgba(120, 240, 255, 0.5), 0 0 40px rgba(255, 90, 190, 0.4);
+  }
+  #yt-player iframe {
+    width: 512px;              /* 实际渲染尺寸保持 512 */
+    height: 512px;
+    transform: scale(0.5);     /* 缩小 50% 显示 */
+    transform-origin: top left;
+    display: block;
+  }
+
 </style>
 </head>
 <body>
@@ -206,6 +228,17 @@
 
 <!-- 波纹容器 -->
 <div id="ripple"></div>
+
+<!-- YouTube 播放器 -->
+<div id="yt-player">
+  <iframe width="512" height="512"
+    src="https://www.youtube.com/embed/RRE2P0fM-DQ?list=RDRRE2P0fM-DQ"
+    title="David Byrne - Like Humans Do"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen></iframe>
+</div>
 
 <!-- ===== 扫雷弹层 ===== -->
 <div class="overlay" id="minePanel">
