@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>DizHouse</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #12002b; font-family: system-ui, sans-serif; }
+
+  /* ===== 背景 ===== */
+  #bg {
+    position: fixed; inset: 0;
+    background: url('bg.png') center center / cover no-repeat;
+    z-index: 0;
+  }
+
+  /* ===== 可点热点 ===== */
+  .hotspot {
+    position: fixed;
+    z-index: 2;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    transition: all .2s;
+  }
+  .hotspot:hover {
+    border-color: rgba(120, 240, 255, 0.9);
+    box-shadow: 0 0 24px rgba(120, 240, 255, 0.7), inset 0 0 18px rgba(255, 90, 190, 0.4);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  #hs-mine  { left: 63%; top: 28%; width: 40px; height: 40px; }
+  #hs-music { left: 43%; top: 64%; width: 40px; height: 40px; }
+  #hs-board { left: 76%; top: 42%; width: 40px; height: 40px; }
+  #hs-lamp  { left: 88%; top: 62%; width: 40px; height: 40px; }
+  #hs-ai    { left: 17%; top: 55%; width: 40px; height: 40px; }
+
+  /* ===== 波纹 ===== */
+  #ripple { position: fixed; z-index: 3; pointer-events: none; display: none; }
+  #ripple.on { display: block; }
+  #ripple .wave {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 90, 190, 0.9);
+    box-shadow: 0 0 24px rgba(120, 240, 255, 0.8), inset 0 0 18px rgba(255, 90, 190, 0.6);
+    transform: translate(-50%, -50%) scale(0);
+    animation: rippleOut 2s ease-out infinite;
+  }
+  @keyframes rippleOut {
+    0%   { transform: translate(-50%, -50%) scale(0.2); opacity: 0.95; }
+    100% { transform: translate(-50%, -50%) scale(2.4); opacity: 0; }
+  }
+
+  /* ===== 箭头 ===== */
+  .arrow {
+    position: fixed;
+    z-index: 3;
+    pointer-events: none;
+    filter: drop-shadow(0 0 8px rgba(255,90,190,0.9)) drop-shadow(0 0 18px rgba(120,240,255,0.6));
+    animation: arrowPulse 1.6s ease-in-out infinite;
+  }
+  @keyframes arrowPulse {
+    0%,100% { transform: scale(1); opacity: 0.85; }
+    50%     { transform: scale(1.14); opacity: 1; }
+  }
+  .arrow svg { display: block; }
+
+  /* ===== 弹层 ===== */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(10, 2, 24, 0.88);
+    backdrop-filter: blur(4px);
+    z-index: 10;
+    display: none;
+    align-items: center; justify-content: center;
+  }
+  .overlay.open { display: flex; }
+
+  .panel {
+    background: #1a0f2e;
+    border: 1px solid rgba(120, 240, 255, 0.45);
+    box-shadow: 0 0 40px rgba(255, 90, 190, 0.35);
+    border-radius: 12px;
+    padding: 18px;
+    max-width: 92vw; max-height: 90vh;
+    overflow: auto;
+    color: #e8e0f5;
+    position: relative;
+  }
+  .panel h3 { margin: 0 0 12px; color: #7ef0ff; font-weight: 600; text-align: center; }
+
+  .close {
+    position: absolute; top: 10px; left: 10px;
+    z-index: 9999;
+    background: #1a0f2e;
+    border: 1px solid rgba(255, 90, 190, 0.6);
+    border-radius: 50%;
+    width: 30px; height: 30px;
+    color: #ff6fc0;
+    font-size: 20px;
+    cursor: pointer;
+    line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .close:hover { color: #fff; }
+
+  #minePanel .panel { width: 420px; }
+  #boardPanel .panel { width: 720px; }
+  #aiPanel .panel { width: 520px; }
+
+  /* ===== AI 聊天窗口 ===== */
+  #aiMessages {
+    height: 340px;
+    overflow-y: auto;
+    background: #12002b;
+    border: 1px solid rgba(120, 240, 255, 0.25);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  #aiMessages::-webkit-scrollbar { width: 6px; }
+  #aiMessages::-webkit-scrollbar-thumb { background: rgba(120,240,255,0.3); border-radius: 3px; }
+
+  .ai-msg {
+    max-width: 82%;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-break: break-word;
+    white-space: pre-wrap;
+  }
+  .ai-msg.user {
+    align-self: flex-end;
+    background: rgba(120, 240, 255, 0.15);
+    border: 1px solid rgba(120, 240, 255, 0.5);
+    color: #d8f8ff;
+  }
+  .ai-msg.bot {
+    align-self: flex-start;
+    background: rgba(255, 90, 190, 0.12);
+    border: 1px solid rgba(255, 90, 190, 0.4);
+    color: #ffd6ee;
+  }
+  .ai-msg.sys {
+    align-self: center;
+    background: transparent;
+    border: none;
+    color: #8a7fb0;
+    font-size: 12px;
+    font-style: italic;
+  }
+
+  #aiInputRow { display: flex; gap: 8px; }
+  #aiInput {
+    flex: 1;
+    padding: 10px 12px;
+    background: #12002b;
+    border: 1px solid rgba(120, 240, 255, 0.4);
+    border-radius: 8px;
+    color: #e8e0f5;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+  }
+  #aiInput:focus { border-color: rgba(120, 240, 255, 0.9); box-shadow: 0 0 12px rgba(120,240,255,0.4); }
+  #aiSend {
+    padding: 10px 18px;
+    background: rgba(120, 240, 255, 0.15);
+    border: 1px solid rgba(120, 240, 255, 0.7);
+    border-radius: 8px;
+    color: #7ef0ff;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  #aiSend:hover { background: rgba(120, 240, 255, 0.3); color: #fff; }
+  #aiSend:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<div id="bg"></div>
+
+<!-- 五个热点 -->
+<div class="hotspot" id="hs-mine"  title="点图标：扫雷"></div>
+<div class="hotspot" id="hs-music" title="点旋钮：音乐"></div>
+<div class="hotspot" id="hs-board" title="点便签：留言"></div>
+<div class="hotspot" id="hs-lamp"  title="点台灯：开关灯"></div>
+<div class="hotspot" id="hs-ai"    title="点这里：AI 聊天"></div>
+
+<!-- 箭头 -->
+<div class="arrow" id="ar-mine"></div>
+<div class="arrow" id="ar-music"></div>
+<div class="arrow" id="ar-board"></div>
+<div class="arrow" id="ar-lamp"></div>
+<div class="arrow" id="ar-ai"></div>
+
+<!-- 波纹容器 -->
+<div id="ripple"></div>
+
+<!-- ===== 扫雷弹层 ===== -->
+<div class="overlay" id="minePanel">
+  <div class="panel">
+    <button class="close" onclick="event.stopPropagation(); closeAll()">×</button>
+    <h3>Minesweeper</h3>
+    <div id="mineApp"></div>
+  </div>
+</div>
+
+<!-- ===== 留言弹层 ===== -->
+<div class="overlay" id="boardPanel">
+  <div class="panel">
+    <button class="close" onclick="event.stopPropagation(); closeAll()">×</button>
+    <h3>Message</h3>
+    <div id="giscusWrap"></div>
+  </div>
+</div>
+
+<!-- ===== AI 聊天弹层 ===== -->
+<div class="overlay" id="aiPanel">
+  <div class="panel">
+    <button class="close" onclick="event.stopPropagation(); closeAll()">×</button>
+    <h3>AI Chat · GLM-5.3-Flash</h3>
+    <div id="aiMessages">
+      <div class="ai-msg sys">你好，我是 GLM-5.3-Flash，有什么可以帮你？</div>
+    </div>
+    <div id="aiInputRow">
+      <input id="aiInput" type="text" placeholder="输入消息，回车发送..." autocomplete="off" />
+      <button id="aiSend">发送</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 鼠标光标跟随特效画布 ===== -->
+<canvas id="cursor-fx-canvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:99999;"></canvas>
+
+<script>
+/* ===== 弹层开关 ===== */
+const overlays = {
+  mine:  document.getElementById('minePanel'),
+  board: document.getElementById('boardPanel'),
+  ai:    document.getElementById('aiPanel'),
+};
+
+function closeAll() {
+  Object.values(overlays).forEach(o => { if (o) o.classList.remove('open'); });
+}
+document.querySelectorAll('.overlay').forEach(ov => {
+  ov.addEventListener('click', e => { if (e.target === ov) closeAll(); });
+});
+
+document.getElementById('hs-mine').addEventListener('click', () => {
+  overlays.mine.classList.add('open');
+  initMine();
+});
+document.getElementById('hs-board').addEventListener('click', () => {
+  overlays.board.classList.add('open');
+  loadGiscus();
+});
+document.getElementById('hs-ai').addEventListener('click', () => {
+  overlays.ai.classList.add('open');
+  setTimeout(() => document.getElementById('aiInput').focus(), 100);
+});
+
+/* ===== 音乐：点一下播，再点一下停 ===== */
+const player = new Audio('music.mp3');
+player.loop = true;
+let musicOn = false;
+
+document.getElementById('hs-music').addEventListener('click', () => {
+  if (musicOn) { player.pause(); musicOn = false; hsMusicOff(); }
+  else         { player.play();  musicOn = true;  hsMusicOn();  }
+});
+
+function hsMusicOn() {
+  const hs = document.getElementById('hs-music');
+  const rect = hs.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+
+  const rp = document.getElementById('ripple');
+  rp.style.left = cx + 'px';
+  rp.style.top = cy + 'px';
+  rp.innerHTML = '';
+  rp.classList.add('on');
+
+  for (let i = 0; i < 3; i++) {
+    const w = document.createElement('div');
+    w.className = 'wave';
+    const size = 40 + i * 14;
+    w.style.width = size + 'px';
+    w.style.height = size + 'px';
+    w.style.animationDelay = (i * 0.5) + 's';
+    rp.appendChild(w);
+  }
+
+  hs.style.borderColor = 'rgba(255, 90, 190, 0.95)';
+  hs.style.boxShadow = '0 0 28px rgba(255, 90, 190, 0.9)';
+}
+
+function hsMusicOff() {
+  document.getElementById('ripple').classList.remove('on');
+  document.getElementById('ripple').innerHTML = '';
+  const hs = document.getElementById('hs-music');
+  hs.style.borderColor = 'transparent';
+  hs.style.boxShadow = 'none';
+}
+
+/* ===== 扫雷 ===== */
+let mineInited = false;
+function initMine() {
+  if (mineInited) return;
+  mineInited = true;
+
+  const app = document.getElementById('mineApp');
+  app.innerHTML = `
+    <div style="margin-bottom:10px">Remaining：<span id="mc">10</span></div>
+    <div id="board" style="display:grid;grid-template-columns:repeat(11,32px);gap:2px;background:#333;padding:5px;border-radius:5px"></div>
+    <button id="rst" style="margin-top:10px;padding:6px 16px;background:#4a90d9;color:#fff;border:none;border-radius:4px;cursor:pointer">Restart</button>
+    <div id="msg" style="margin-top:10px;font-weight:bold;height:22px"></div>
+  `;
+
+  const SIZE = 11, MINES = 18;
+  let board = [], revealed = [], flagged = [], over = false;
+  const boardEl = document.getElementById('board');
+  const mcEl = document.getElementById('mc');
+  const msgEl = document.getElementById('msg');
+
+  function init() {
+    board = []; revealed = []; flagged = []; over = false;
+    msgEl.textContent = ''; mcEl.textContent = MINES;
+    for (let i = 0; i < SIZE; i++) {
+      board[i] = []; revealed[i] = []; flagged[i] = [];
+      for (let j = 0; j < SIZE; j++) { board[i][j] = 0; revealed[i][j] = false; flagged[i][j] = false; }
+    }
+    let placed = 0;
+    while (placed < MINES) {
+      const r = (Math.random()*SIZE)|0, c = (Math.random()*SIZE)|0;
+      if (board[r][c] !== -1) { board[r][c] = -1; placed++; }
+    }
+    for (let i = 0; i < SIZE; i++) for (let j = 0; j < SIZE; j++) {
+      if (board[i][j] === -1) continue;
+      let n = 0;
+      for (let di=-1;di<=1;di++) for (let dj=-1;dj<=1;dj++) {
+        const ni=i+di, nj=j+dj;
+        if (ni>=0&&ni<SIZE&&nj>=0&&nj<SIZE&&board[ni][nj]===-1) n++;
+      }
+      board[i][j] = n;
+    }
+    render();
+  }
+
+  function render() {
+    boardEl.innerHTML = '';
+    for (let i = 0; i < SIZE; i++) for (let j = 0; j < SIZE; j++) {
+      const b = document.createElement('button');
+      b.style.cssText = 'width:32px;height:32px;border:none;border-radius:3px;font-weight:bold;font-size:16px;cursor:pointer';
+      if (revealed[i][j]) {
+        b.style.background = board[i][j] === -1 ? '#c0392b' : '#cfcfcf';
+        b.style.color = '#222';
+        b.textContent = board[i][j] === -1 ? '💣' : (board[i][j] > 0 ? board[i][j] : '');
+        b.style.cursor = 'default';
+      } else if (flagged[i][j]) {
+        b.style.background = '#d4a017'; b.textContent = '🚩';
+      } else {
+        b.style.background = '#7a7a7a';
+      }
+      b.addEventListener('click', () => clickCell(i,j));
+      b.addEventListener('contextmenu', e => { e.preventDefault(); toggleFlag(i,j); });
+      boardEl.appendChild(b);
+    }
+  }
+
+  function clickCell(i,j) {
+    if (over || revealed[i][j] || flagged[i][j]) return;
+    if (board[i][j] === -1) { revealAll(); msgEl.textContent = '💥 Boom!'; over = true; render(); return; }
+    reveal(i,j); render(); checkWin();
+  }
+  function reveal(i,j) {
+    if (i<0||i>=SIZE||j<0||j>=SIZE||revealed[i][j]||flagged[i][j]) return;
+    revealed[i][j] = true;
+    if (board[i][j] === 0) for (let di=-1;di<=1;di++) for (let dj=-1;dj<=1;dj++) reveal(i+di,j+dj);
+  }
+  function toggleFlag(i,j) {
+    if (over || revealed[i][j]) return;
+    flagged[i][j] = !flagged[i][j];
+    mcEl.textContent = MINES - flagged.flat().filter(Boolean).length;
+    render();
+  }
+  function revealAll() {
+    for (let i=0;i<SIZE;i++) for (let j=0;j<SIZE;j++) if (board[i][j]===-1) revealed[i][j]=true;
+  }
+  function checkWin() {
+    let un = 0;
+    for (let i=0;i<SIZE;i++) for (let j=0;j<SIZE;j++) if (!revealed[i][j]) un++;
+    if (un === MINES) { msgEl.textContent = '🎉 You won!'; over = true; revealAll(); render(); }
+  }
+
+  document.getElementById('rst').addEventListener('click', init);
+  init();
+}
+
+/* ===== 留言板 giscus ===== */
+let giscusLoaded = false;
+function loadGiscus() {
+  if (giscusLoaded) return;
+  giscusLoaded = true;
+  const wrap = document.getElementById('giscusWrap');
+  const s = document.createElement('script');
+  s.src = 'https://giscus.app/client.js';
+  s.setAttribute('data-repo', 'dizhub01/Cloudflare-pages');
+  s.setAttribute('data-repo-id', 'R_kgDOVB8r7Q');
+  s.setAttribute('data-category', 'Announcements');
+  s.setAttribute('data-category-id', 'DIC_kwDOVB8r7c4DHZAP');
+  s.setAttribute('data-mapping', 'pathname');
+  s.setAttribute('data-strict', '0');
+  s.setAttribute('data-reactions-enabled', '1');
+  s.setAttribute('data-emit-metadata', '0');
+  s.setAttribute('data-input-position', 'bottom');
+  s.setAttribute('data-theme', 'dark_dimmed');
+  s.setAttribute('data-lang', 'zh-CN');
+  s.setAttribute('crossorigin', 'anonymous');
+  s.async = true;
+  wrap.appendChild(s);
+}
+
+/* ===== 箭头：指向三个热点 ===== */
+function pxArrow(rotate, color) {
+  const px = [
+    "......X......",
+    ".....XXX.....",
+    "....XXXXX....",
+    "...XXXXXXX...",
+    "..XXXXXXXXX..",
+    ".XXXXXXXXXXX.",
+    "XXXXXXXXXXXXX",
+    ".....XXX.....",
+    ".....XXX.....",
+    ".....XXX.....",
+    ".....XXX.....",
+  ];
+  const cell = 6;
+  const w = px[0].length * cell;
+  const h = px.length * cell;
+
+  let rects = '';
+  px.forEach((row, y) => {
+    [...row].forEach((ch, x) => {
+      if (ch === 'X') {
+        rects += `<rect x="${x*cell}" y="${y*cell}" width="${cell}" height="${cell}" fill="${color}" />`;
+      }
+    });
+  });
+
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"
+            style="transform: rotate(${rotate}deg);">${rects}</svg>`;
+}
+
+function placeArrows() {
+  const cfg = [
+    { id: 'ar-mine',  hs: 'hs-mine',  dx: 0,   dy: -55, rot: 180 },
+    { id: 'ar-music', hs: 'hs-music', dx: -55, dy: 0,   rot: 90  },
+    { id: 'ar-board', hs: 'hs-board', dx: 55,  dy: 0,   rot: -90 },
+    { id: 'ar-lamp',  hs: 'hs-lamp',  dx: 55,  dy: 0,   rot: -90 },
+    { id: 'ar-ai',    hs: 'hs-ai',    dx: -55, dy: 0,   rot: 90  },
+  ];
+
+  cfg.forEach(c => {
+    const hsEl = document.getElementById(c.hs);
+    const el = document.getElementById(c.id);
+    if (!hsEl || !el) return;
+
+    const hs = hsEl.getBoundingClientRect();
+    const cx = hs.left + hs.width/2 + c.dx;
+    const cy = hs.top + hs.height/2 + c.dy;
+    const color = c.rot === 90 ? '#ff5ec7' : (c.rot === -90 ? '#7ef0ff' : '#ff5ec7');
+
+    el.innerHTML = pxArrow(c.rot, color);
+    const svg = el.querySelector('svg');
+    const w = svg ? +svg.getAttribute('width')  : 0;
+    const h = svg ? +svg.getAttribute('height') : 0;
+    el.style.left = (cx - w/2) + 'px';
+    el.style.top  = (cy - h/2) + 'px';
+  });
+}
+
+/* ===== 台灯开关：切换背景图 ===== */
+let lampOn = true;
+const bgEl = document.getElementById('bg');
+const lampHotspot = document.getElementById('hs-lamp');
+
+lampHotspot.addEventListener('click', () => {
+  lampOn = !lampOn;
+  if (lampOn) {
+    bgEl.style.backgroundImage = "url('bg.png')";
+  } else {
+    bgEl.style.backgroundImage = "url('bg-dark1.png')";
+  }
+});
+
+/* ============================================================
+   AI 聊天 · glm-5.3-flash
+   ============================================================ */
+
+const aiMessagesEl = document.getElementById('aiMessages');
+const aiInputEl = document.getElementById('aiInput');
+const aiSendBtn = document.getElementById('aiSend');
+
+// 会话历史（保留多轮上下文）
+const aiHistory = [
+  { role: "system", content: "你是一个乐于助人的助手。" }
+];
+
+function appendMsg(text, role) {
+  const div = document.createElement('div');
+  div.className = 'ai-msg ' + role;
+  div.textContent = text;
+  aiMessagesEl.appendChild(div);
+  aiMessagesEl.scrollTop = aiMessagesEl.scrollHeight;
+  return div;
+}
+
+async function sendToGLM(userText) {
+  aiHistory.push({ role: "user", content: userText });
+
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: userText }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`API error: ${res.status} ${err}`);
+  }
+
+  const data = await res.json();
+  const reply = data.choices?.[0]?.message?.content || "(空回复)";
+  aiHistory.push({ role: "assistant", content: reply });
+  return reply;
+}
+
+async function handleSend() {
+  const text = aiInputEl.value.trim();
+  if (!text || aiSendBtn.disabled) return;
+
+  aiInputEl.value = '';
+  appendMsg(text, 'user');
+
+  aiSendBtn.disabled = true;
+  aiSendBtn.textContent = 'thinking…';
+  const thinkingEl = appendMsg('thinking…', 'sys');
+
+  try {
+    const reply = await sendToGLM(text);
+    thinkingEl.remove();
+    appendMsg(reply, 'bot');
+  } catch (e) {
+    thinkingEl.remove();
+    appendMsg('error：' + e.message, 'sys');
+    console.error(e);
+  } finally {
+    aiSendBtn.disabled = false;
+    aiSendBtn.textContent = 'send';
+    aiInputEl.focus();
+  }
+}
+
+aiSendBtn.addEventListener('click', handleSend);
+aiInputEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); handleSend(); }
+});
+
+/* ===== 启动 ===== */
+window.addEventListener('load', placeArrows);
+window.addEventListener('resize', placeArrows);
+placeArrows();
+setTimeout(placeArrows, 300);
+
+/* ===== ESC 关闭 ===== */
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(); });
+
+/* ============================================================
+   鼠标光标跟随特效 - 方形
+   ============================================================ */
+(function(){
+  const c = document.getElementById('cursor-fx-canvas');
+  const x = c.getContext('2d');
+  let ps = [], mx = -100, my = -100, inC = false, lm = 0;
+  const MAX = 800, colors = ["#0077b6","#00b4d8","#48cae4","#90e0ef","#023e8a","#0096c7","#00a8e8","#7ec8e3"];
+  const CFG = {count:2, sMin:5, sMax:15, spd:0.5, life:90, grav:-0.02, spread:360, shape:'square'};
+
+  function rz(){ c.width = innerWidth; c.height = innerHeight; }
+  rz(); window.addEventListener('resize', rz);
+
+  function sp(x, y, n) {
+    for (let i = 0; i < n; i++) {
+      if (ps.length >= MAX) break;
+      const a = (Math.random() * CFG.spread * Math.PI / 180) - (CFG.spread < 360 ? CFG.spread / 2 * Math.PI / 180 : 0) - Math.PI / 2;
+      const s = (.5 + Math.random() * 2.5) * CFG.spd;
+      const sz = CFG.sMin + Math.random() * (CFG.sMax - CFG.sMin);
+      const l = CFG.life + Math.floor(Math.random() * CFG.life * .6);
+      ps.push({
+        x, y,
+        vx: Math.cos(a) * s, vy: Math.sin(a) * s,
+        size: sz, life: l, maxL: l,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        shape: CFG.shape,
+        rot: Math.random() * Math.PI * 2, rS: (Math.random() - .5) * .15
+      });
+    }
+  }
+
+  function up() {
+    for (let i = ps.length - 1; i >= 0; i--) {
+      const p = ps[i];
+      p.x += p.vx; p.y += p.vy; p.vy += CFG.grav;
+      p.life--; p.rot += p.rS;
+      if (p.life <= 0) ps.splice(i, 1);
+    }
+  }
+
+  function dr() {
+    x.clearRect(0, 0, c.width, c.height);
+    for (const p of ps) {
+      const a = Math.max(0, p.life / p.maxL);
+      const sc = .4 + a * .6;
+      const sz = p.size * sc;
+      x.save();
+      x.globalAlpha = a;
+      x.fillStyle = p.color;
+      x.shadowColor = p.color;
+      x.shadowBlur = sz * 1.5;
+      x.translate(p.x, p.y);
+      x.rotate(p.rot);
+      switch (p.shape) {
+        case 'circle':
+          x.beginPath(); x.arc(0, 0, sz / 2, 0, Math.PI * 2); x.fill(); break;
+        case 'square':
+          x.fillRect(-sz / 2, -sz / 2, sz, sz); break;
+        case 'star':
+          !function(cx, cy, oR, iR, pts) {
+            x.beginPath();
+            for (let i = 0; i < pts * 2; i++) {
+              const r = i % 2 === 0 ? oR : iR;
+              const ag = (i * Math.PI) / pts - Math.PI / 2;
+              const px = cx + Math.cos(ag) * r;
+              const py = cy + Math.sin(ag) * r;
+              i === 0 ? x.moveTo(px, py) : x.lineTo(px, py);
+            }
+            x.closePath(); x.fill();
+          }(0, 0, sz / 2, sz / 4, 5);
+          break;
+        case 'diamond':
+          x.beginPath(); x.moveTo(0, -sz / 2); x.lineTo(sz / 2, 0);
+          x.lineTo(0, sz / 2); x.lineTo(-sz / 2, 0); x.closePath(); x.fill(); break;
+        default:
+          x.beginPath(); x.arc(0, 0, sz / 2, 0, Math.PI * 2); x.fill();
+      }
+      x.restore();
+    }
+  }
+
+  function loop(t) {
+    if (inC && t - lm < 80) sp(mx, my, CFG.count);
+    up(); dr();
+    requestAnimationFrame(loop);
+  }
+
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; inC = true; lm = performance.now(); });
+  document.addEventListener('mouseleave', () => { inC = false; });
+  document.addEventListener('touchmove', e => {
+    mx = e.touches[0].clientX; my = e.touches[0].clientY; inC = true; lm = performance.now();
+  }, { passive: true });
+  document.addEventListener('touchend', () => { inC = false; });
+
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
