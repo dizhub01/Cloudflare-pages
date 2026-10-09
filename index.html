@@ -185,6 +185,19 @@
   #aiSend:hover { background: rgba(120, 240, 255, 0.3); color: #fff; }
   #aiSend:disabled { opacity: 0.4; cursor: not-allowed; }
 
+  /* ===== 像素女孩 ===== */
+  #pixel-girl {
+    position: fixed;
+    left: 50%;                 /* 左右位置先居中，你自己调 */
+    bottom: 0;
+    transform: translateX(-50%);
+    height: 25vh;              /* 高度 = 页面 1/4 */
+    z-index: 4;
+    pointer-events: none;      /* 不挡点击 */
+    image-rendering: pixelated;/* 像素画放大不模糊 */
+    user-select: none;
+  }
+ 
 </style>
 </head>
 <body>
@@ -208,6 +221,9 @@
 <!-- 波纹容器 -->
 <div id="ripple"></div>
 
+<!-- 像素女孩（跟随台灯切换） -->
+<img id="pixel-girl" src="girl_day.png" alt="">
+ 
 <!-- ===== 扫雷弹层 ===== -->
 <div class="overlay" id="minePanel">
   <div class="panel">
@@ -504,12 +520,16 @@ let lampOn = true;
 const bgEl = document.getElementById('bg');
 const lampHotspot = document.getElementById('hs-lamp');
 
+const girlEl = document.getElementById('pixel-girl');
+
 lampHotspot.addEventListener('click', () => {
   lampOn = !lampOn;
   if (lampOn) {
     bgEl.style.backgroundImage = "url('bg.png')";
+    girlEl.src = 'girl_day.png';
   } else {
     bgEl.style.backgroundImage = "url('bg-dark1.png')";
+    girlEl.src = 'girl_night.png';
   }
 });
 
