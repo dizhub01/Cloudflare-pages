@@ -196,6 +196,33 @@
     image-rendering: pixelated;/* 像素画放大不模糊 */
     user-select: none;
   }
+
+/* ===== 霓虹招牌 ===== */
+.neon-text {
+  position: fixed;
+  left: 20%;
+  top: 15%;
+  transform: translate(-50%, -50%);
+  z-index: 3;                 /* 在背景之上、热点之下 */
+  pointer-events: none;       /* 不挡点击 */
+  font-size: 115px;
+  font-family: 'Impact', sans-serif;
+  color: #ffffff;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  -webkit-text-stroke: 1px #00ffff;
+  text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff,
+               0 0 20px #00ffff, 0 0 50px #00ffff, 0 0 60px #00ffff;
+  animation: neon-rainbow 3.2s infinite;
+}
+@keyframes neon-rainbow {
+  0%   { filter: hue-rotate(0deg); }
+  25%  { filter: hue-rotate(90deg); }
+  50%  { filter: hue-rotate(180deg); }
+  75%  { filter: hue-rotate(270deg); }
+  100% { filter: hue-rotate(360deg); }
+}
  
 </style>
 </head>
@@ -217,6 +244,9 @@
 <div class="arrow" id="ar-lamp"></div>
 <div class="arrow" id="ar-ai"></div>
 
+<!-- 霓虹招牌 -->
+<div class="neon-text">Where's Moo Inc.?</div>
+ 
 <!-- 波纹容器 -->
 <div id="ripple"></div>
 
