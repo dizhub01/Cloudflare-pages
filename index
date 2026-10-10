@@ -2,23 +2,36 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>🎵 ✧˖°. diz ✦ vibes °.✧ 🎵 </title>
+<title>🎵 ✧˖°. diz ✦ vibes °.✧ 🎵</title>
 <link rel="icon" type="image/png" href="/favicon1.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <style>
+  /* ============================================================
+     基础
+     ============================================================ */
   * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #12002b; font-family: system-ui, sans-serif; }
+  html, body {
+    margin: 0; padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background: #12002b;
+    font-family: system-ui, sans-serif;
+  }
 
-  /* ===== 背景 ===== */
+  /* ============================================================
+     背景
+     ============================================================ */
   #bg {
     position: fixed; inset: 0;
     background: url('bg.png') center center / cover no-repeat;
     z-index: 0;
   }
 
-  /* ===== 可点热点 ===== */
+  /* ============================================================
+     热点
+     ============================================================ */
   .hotspot {
     position: fixed;
     z-index: 2;
@@ -39,7 +52,9 @@
   #hs-lamp  { left: 89%; top: 62%; width: 40px; height: 40px; }
   #hs-ai    { left: 52%; top: 60%; width: 40px; height: 40px; }
 
-  /* ===== 波纹 ===== */
+  /* ============================================================
+     波纹
+     ============================================================ */
   #ripple { position: fixed; z-index: 3; pointer-events: none; display: none; }
   #ripple.on { display: block; }
   #ripple .wave {
@@ -55,7 +70,9 @@
     100% { transform: translate(-50%, -50%) scale(2.4); opacity: 0; }
   }
 
-  /* ===== 箭头 ===== */
+  /* ============================================================
+     箭头
+     ============================================================ */
   .arrow {
     position: fixed;
     z-index: 3;
@@ -69,7 +86,9 @@
   }
   .arrow svg { display: block; }
 
-  /* ===== 弹层 ===== */
+  /* ============================================================
+     弹层通用
+     ============================================================ */
   .overlay {
     position: fixed; inset: 0;
     background: rgba(10, 2, 24, 0.88);
@@ -91,7 +110,12 @@
     color: #e8e0f5;
     position: relative;
   }
-  .panel h3 { margin: 0 0 12px; color: #7ef0ff; font-weight: 600; text-align: center; }
+  .panel h3 {
+    margin: 0 0 12px;
+    color: #7ef0ff;
+    font-weight: 600;
+    text-align: center;
+  }
 
   .close {
     position: absolute; top: 10px; left: 10px;
@@ -108,11 +132,13 @@
   }
   .close:hover { color: #fff; }
 
-  #minePanel .panel { width: 420px; }
+  #minePanel  .panel { width: 420px; }
   #boardPanel .panel { width: 720px; }
-  #aiPanel .panel { width: 520px; }
+  #aiPanel    .panel { width: 520px; }
 
-  /* ===== AI 聊天窗口 ===== */
+  /* ============================================================
+     AI 聊天窗口
+     ============================================================ */
   #aiMessages {
     height: 340px;
     overflow-y: auto;
@@ -126,7 +152,10 @@
     gap: 8px;
   }
   #aiMessages::-webkit-scrollbar { width: 6px; }
-  #aiMessages::-webkit-scrollbar-thumb { background: rgba(120,240,255,0.3); border-radius: 3px; }
+  #aiMessages::-webkit-scrollbar-thumb {
+    background: rgba(120,240,255,0.3);
+    border-radius: 3px;
+  }
 
   .ai-msg {
     max-width: 82%;
@@ -170,7 +199,10 @@
     font-family: inherit;
     outline: none;
   }
-  #aiInput:focus { border-color: rgba(120, 240, 255, 0.9); box-shadow: 0 0 12px rgba(120,240,255,0.4); }
+  #aiInput:focus {
+    border-color: rgba(120, 240, 255, 0.9);
+    box-shadow: 0 0 12px rgba(120,240,255,0.4);
+  }
   #aiSend {
     padding: 10px 18px;
     background: rgba(120, 240, 255, 0.15);
@@ -185,81 +217,85 @@
   #aiSend:hover { background: rgba(120, 240, 255, 0.3); color: #fff; }
   #aiSend:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* ===== 像素女孩 ===== */
+  /* ============================================================
+     像素女孩
+     ============================================================ */
   #pixel-girl {
     position: fixed;
-    left: 18%;                 /* 左右位置先居中，你自己调 */
+    left: 18%;
     bottom: 0;
-    height:40vh;              /* 高度 = 页面 1/4 */
+    height: 40vh;
     z-index: 4;
-    pointer-events: none;      /* 不挡点击 */
-    image-rendering: pixelated;/* 像素画放大不模糊 */
+    pointer-events: none;
+    image-rendering: pixelated;
     user-select: none;
   }
 
-/* ===== 霓虹招牌 ===== */
-.neon-text {
-  text-align: center；
-  position: fixed;
-  left: 0;
-  top: 0;
-  padding: 10vh 0 0 10vw;       /* 留点边距，不贴死左上角 */
-  z-index: 3;
-  pointer-events: none;
-  font-family: 'Impact', 'Haettenschweiler', 'Arial Narrow Bold', sans-serif;
-  font-size: 115px;            /* 115px 偏大，先缩到 88px */
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  line-height: 1.05;          /* 两行之间别太挤 */
-  user-select: none;
-}
-  color: #ffffff;
-  -webkit-text-stroke: 1px #00ffff;
-  text-shadow:
-    0 0 5px  #00ffff,
-    0 0 10px #00ffff,
-    0 0 20px #00ffff,
-    0 0 40px #00ffff;
-  animation: neon-hue 6s linear infinite;
-}
-@keyframes neon-hue {
-  0%   { filter: hue-rotate(0deg);   }
-  100% { filter: hue-rotate(360deg); }
-}
- 
+  /* ============================================================
+     霓虹招牌
+     ============================================================ */
+  .neon-text {
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding: 10vh 0 0 10vw;
+    z-index: 3;
+    pointer-events: none;
+    text-align: center;
+    font-family: 'Impact', 'Haettenschweiler', 'Arial Narrow Bold', sans-serif;
+    font-size: 115px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    line-height: 1.05;
+    user-select: none;
+
+    color: #ffffff;
+    -webkit-text-stroke: 1px #00ffff;
+    text-shadow:
+      0 0 5px  #00ffff,
+      0 0 10px #00ffff,
+      0 0 20px #00ffff,
+      0 0 40px #00ffff;
+    animation: neon-hue 6s linear infinite;
+  }
+  @keyframes neon-hue {
+    0%   { filter: hue-rotate(0deg);   }
+    100% { filter: hue-rotate(360deg); }
+  }
 </style>
 </head>
 <body>
 
+<!-- ===== 背景 ===== -->
 <div id="bg"></div>
 
-<!-- 五个热点 -->
+<!-- ===== 霓虹招牌 ===== -->
+<div class="neon-text">
+  <span>Where's</span><br>
+  <span>moo inc.?</span>
+</div>
+
+<!-- ===== 五个热点 ===== -->
 <div class="hotspot" id="hs-mine"  title="Click: Minesweeper"></div>
 <div class="hotspot" id="hs-music" title="Click: Music"></div>
 <div class="hotspot" id="hs-board" title="Click: Board"></div>
 <div class="hotspot" id="hs-lamp"  title="Click: Lamp"></div>
 <div class="hotspot" id="hs-ai"    title="Click: AI Chat"></div>
 
-<!-- 箭头 -->
+<!-- ===== 箭头 ===== -->
 <div class="arrow" id="ar-mine"></div>
 <div class="arrow" id="ar-music"></div>
 <div class="arrow" id="ar-board"></div>
 <div class="arrow" id="ar-lamp"></div>
 <div class="arrow" id="ar-ai"></div>
 
-<!-- 霓虹招牌 -->
-<div class="neon-text">
-  <span>Where's</span><br>
-  <span>moo inc.?</span>
-</div>
- 
-<!-- 波纹容器 -->
+<!-- ===== 波纹容器 ===== -->
 <div id="ripple"></div>
 
-<!-- 像素女孩（跟随台灯切换） -->
+<!-- ===== 像素女孩 ===== -->
 <img id="pixel-girl" src="girl_day1.png" alt="">
- 
+
 <!-- ===== 扫雷弹层 ===== -->
 <div class="overlay" id="minePanel">
   <div class="panel">
@@ -284,7 +320,7 @@
     <button class="close" onclick="event.stopPropagation(); closeAll()">×</button>
     <h3>AI Chat · GLM-5.3-Flash</h3>
     <div id="aiMessages">
-      <div class="ai-msg sys">Hello, I am GLM. ☞(⌐■_■)☞ Human, need any help? </div>
+      <div class="ai-msg sys">Hello, I am GLM. ☞(⌐■_■)☞ Human, need any help?</div>
     </div>
     <div id="aiInputRow">
       <input id="aiInput" type="text" placeholder="⋆｡˚❀ (｡•ᴗ•｡) ❀˚｡⋆" autocomplete="off" />
@@ -293,11 +329,13 @@
   </div>
 </div>
 
-<!-- ===== 鼠标光标跟随特效画布 ===== -->
+<!-- ===== 鼠标拖尾画布 ===== -->
 <canvas id="cursor-fx-canvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:5;"></canvas>
 
 <script>
-/* ===== 弹层开关 ===== */
+/* ============================================================
+   弹层开关
+   ============================================================ */
 const overlays = {
   mine:  document.getElementById('minePanel'),
   board: document.getElementById('boardPanel'),
@@ -306,7 +344,6 @@ const overlays = {
 
 function closeAll() {
   Object.values(overlays).forEach(o => { if (o) o.classList.remove('open'); });
-  // 弹层全部关闭后，显示拖尾画布
   document.getElementById('cursor-fx-canvas').style.display = 'block';
 }
 document.querySelectorAll('.overlay').forEach(ov => {
@@ -329,7 +366,9 @@ document.getElementById('hs-ai').addEventListener('click', () => {
   setTimeout(() => document.getElementById('aiInput').focus(), 100);
 });
 
-/* ===== 音乐：点一下播，再点一下停 ===== */
+/* ============================================================
+   音乐
+   ============================================================ */
 const player = new Audio('music1.mp3');
 player.loop = true;
 let musicOn = false;
@@ -373,7 +412,9 @@ function hsMusicOff() {
   hs.style.boxShadow = 'none';
 }
 
-/* ===== 扫雷 ===== */
+/* ============================================================
+   扫雷
+   ============================================================ */
 let mineInited = false;
 function initMine() {
   if (mineInited) return;
@@ -467,7 +508,9 @@ function initMine() {
   init();
 }
 
-/* ===== 留言板 giscus ===== */
+/* ============================================================
+   留言板 giscus
+   ============================================================ */
 let giscusLoaded = false;
 function loadGiscus() {
   if (giscusLoaded) return;
@@ -491,7 +534,9 @@ function loadGiscus() {
   wrap.appendChild(s);
 }
 
-/* ===== 箭头：指向三个热点 ===== */
+/* ============================================================
+   箭头
+   ============================================================ */
 function pxArrow(rotate, color) {
   const px = [
     "......X......",
@@ -551,11 +596,12 @@ function placeArrows() {
   });
 }
 
-/* ===== 台灯开关：切换背景图 ===== */
+/* ============================================================
+   台灯开关：切换背景图 + 像素女孩
+   ============================================================ */
 let lampOn = true;
 const bgEl = document.getElementById('bg');
 const lampHotspot = document.getElementById('hs-lamp');
-
 const girlEl = document.getElementById('pixel-girl');
 
 lampHotspot.addEventListener('click', () => {
@@ -572,12 +618,10 @@ lampHotspot.addEventListener('click', () => {
 /* ============================================================
    AI 聊天 · glm-5.3-flash
    ============================================================ */
-
 const aiMessagesEl = document.getElementById('aiMessages');
 const aiInputEl = document.getElementById('aiInput');
 const aiSendBtn = document.getElementById('aiSend');
 
-// 会话历史（保留多轮上下文）
 const aiHistory = [
   { role: "system", content: "你是一个乐于助人的助手。" }
 ];
@@ -642,17 +686,18 @@ aiInputEl.addEventListener('keydown', e => {
   if (e.key === 'Enter') { e.preventDefault(); handleSend(); }
 });
 
-/* ===== 启动 ===== */
+/* ============================================================
+   启动
+   ============================================================ */
 window.addEventListener('load', placeArrows);
 window.addEventListener('resize', placeArrows);
 placeArrows();
 setTimeout(placeArrows, 300);
 
-/* ===== ESC 关闭 ===== */
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(); });
 
 /* ============================================================
-   鼠标光标跟随特效 - 方形
+   鼠标拖尾特效 - 方形
    ============================================================ */
 (function(){
   const c = document.getElementById('cursor-fx-canvas');
