@@ -199,23 +199,21 @@
 
 /* ===== 霓虹招牌 ===== */
 .neon-text {
+  text-align: center；
   position: fixed;
   left: 0;
   top: 0;
-  padding: 15vh 0 0 15vw;       /* 留点边距，不贴死左上角 */
+  padding: 10vh 0 0 10vw;       /* 留点边距，不贴死左上角 */
   z-index: 3;
   pointer-events: none;
   font-family: 'Impact', 'Haettenschweiler', 'Arial Narrow Bold', sans-serif;
-  font-size: 88px;            /* 115px 偏大，先缩到 88px */
+  font-size: 115px;            /* 115px 偏大，先缩到 88px */
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 2px;
   line-height: 1.05;          /* 两行之间别太挤 */
   user-select: none;
 }
-
-/* 两种颜色 */
-.neon-cyan {
   color: #ffffff;
   -webkit-text-stroke: 1px #00ffff;
   text-shadow:
@@ -223,29 +221,11 @@
     0 0 10px #00ffff,
     0 0 20px #00ffff,
     0 0 40px #00ffff;
-  animation: neon-cyan 2.4s ease-in-out infinite;
+  animation: neon-hue 6s linear infinite;
 }
-.neon-pink {
-  color: #ffffff;
-  -webkit-text-stroke: 1px #ff5ec7;
-  text-shadow:
-    0 0 5px  #ff5ec7,
-    0 0 10px #ff5ec7,
-    0 0 20px #ff5ec7,
-    0 0 40px #ff5ec7;
-  animation: neon-pink 2.4s ease-in-out infinite;
-}
-
-/* 两种颜色错峰闪烁，模拟霓虹灯管 */
-@keyframes neon-cyan {
-  0%, 100% { opacity: 1;    filter: brightness(1);   }
-  45%      { opacity: 0.7;  filter: brightness(0.7); }
-  55%      { opacity: 1;    filter: brightness(1.2); }
-}
-@keyframes neon-pink {
-  0%, 100% { opacity: 1;    filter: brightness(1);   }
-  45%      { opacity: 0.7;  filter: brightness(0.7); }
-  55%      { opacity: 1;    filter: brightness(1.2); }
+@keyframes neon-hue {
+  0%   { filter: hue-rotate(0deg);   }
+  100% { filter: hue-rotate(360deg); }
 }
  
 </style>
@@ -270,8 +250,8 @@
 
 <!-- 霓虹招牌 -->
 <div class="neon-text">
-  <span class="neon-cyan">Where's</span><br>
-  <span class="neon-pink">moo inc.?</span>
+  <span>Where's</span><br>
+  <span>moo inc.?</span>
 </div>
  
 <!-- 波纹容器 -->
