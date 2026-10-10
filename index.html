@@ -259,10 +259,24 @@
       0 0 40px #00ffff;
     animation: neon-hue 6s linear infinite;
   }
-  @keyframes neon-hue {
-    0%   { filter: hue-rotate(0deg);   }
-    100% { filter: hue-rotate(360deg); }
+@keyframes neon-hue {
+  0%, 100% {
+    color: #ffffff;
+    -webkit-text-stroke: 1px #00ffff;
+    text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 40px #00ffff;
   }
+  33% {
+    color: #ffffff;
+    -webkit-text-stroke: 1px #ff5ec7;
+    text-shadow: 0 0 5px #ff5ec7, 0 0 10px #ff5ec7, 0 0 20px #ff5ec7, 0 0 40px #ff5ec7;
+  }
+  66% {
+    color: #ffffff;
+    -webkit-text-stroke: 1px #b06fff;
+    text-shadow: 0 0 5px #b06fff, 0 0 10px #b06fff, 0 0 20px #b06fff, 0 0 40px #b06fff;
+  }
+}
+
 </style>
 </head>
 <body>
