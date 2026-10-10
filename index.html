@@ -258,7 +258,12 @@
       0 0 20px #00ffff,
       0 0 40px #00ffff;
     animation: neon-hue 6s linear infinite;
+
+    /* ===== 透视效果 ===== */
+    transform-origin: left center;              /* 支点在左边 */
+    transform: perspective(800px) rotateY(18deg); /* 绕垂直轴旋转 */
   }
+  
 @keyframes neon-hue {
   0%, 100% {
     color: #ffffff;
