@@ -277,6 +277,120 @@
   }
 }
 
+    /* ============================================================
+     跑动小人
+     ============================================================ */
+  #walker {
+    position: fixed;
+    bottom: 0;                     /* 贴底，0 边距 */
+    left: 0;
+    z-index: 6;                    /* 最上层：高于像素女孩(4)、拖尾(5)，低于弹层(10) */
+    cursor: pointer;
+    pointer-events: auto;
+    animation: walk-across 48s linear infinite;
+    will-change: transform;
+  }
+  #walker .flip {
+    display: block;
+    animation: flip-dir 48s linear infinite;
+    transform-origin: center;
+  }
+  #walker svg {
+    display: block;
+    width: 67px;
+    height: 67px;
+    image-rendering: pixelated;
+    overflow: visible;
+  }
+
+  @keyframes walk-across {
+    0%   { transform: translateX(-100px); }
+    49%  { transform: translateX(calc(100vw + 100px)); }
+    50%  { transform: translateX(calc(100vw + 100px)); }
+    99%  { transform: translateX(-100px); }
+    100% { transform: translateX(-100px); }
+  }
+  @keyframes flip-dir {
+    0%   { transform: scaleX(1);  }
+    49%  { transform: scaleX(1);  }
+    50%  { transform: scaleX(-1); }
+    99%  { transform: scaleX(-1); }
+    100% { transform: scaleX(1);  }
+  }
+
+  /* 辫子 */
+  #tail-back,
+  #tail-front {
+    transform-origin: 100% 20%;
+    animation: tail-sway 0.4s ease-in-out infinite alternate;
+  }
+  #tail-front { animation-delay: 0.2s; }
+  @keyframes tail-sway {
+    0%   { transform: rotate(0deg)  translateX(0); }
+    100% { transform: rotate(-8deg) translateX(-1px); }
+  }
+
+  /* 手臂 */
+  #upper-arm {
+    transform-origin: 18px 17px;
+    animation: upper-arm-swing 0.16s steps(2, end) infinite alternate;
+  }
+  #forearm {
+    transform-origin: 22px 21px;
+    animation: forearm-bend 0.16s steps(2, end) infinite alternate;
+    animation-delay: -0.08s;
+  }
+  @keyframes upper-arm-swing {
+    0%   { transform: rotate(-10deg); }
+    100% { transform: rotate(14deg);  }
+  }
+  @keyframes forearm-bend {
+    0%   { transform: rotate(-20deg); }
+    100% { transform: rotate(10deg);  }
+  }
+
+  /* 前腿 */
+  #thigh-front {
+    transform-origin: 18px 23px;
+    animation: thigh-front 0.16s steps(2, end) infinite alternate;
+  }
+  #shin-front {
+    transform-origin: 18px 26px;
+    animation: shin-front 0.16s steps(2, end) infinite alternate;
+  }
+  @keyframes thigh-front {
+    0%   { transform: rotate(18deg);  }
+    100% { transform: rotate(-18deg); }
+  }
+  @keyframes shin-front {
+    0%   { transform: rotate(25deg);  }
+    100% { transform: rotate(-5deg);  }
+  }
+
+  /* 后腿 */
+  #thigh-back {
+    transform-origin: 18px 23px;
+    animation: thigh-back 0.16s steps(2, end) infinite alternate;
+    animation-delay: -0.08s;
+  }
+  #shin-back {
+    transform-origin: 18px 26px;
+    animation: shin-back 0.16s steps(2, end) infinite alternate;
+    animation-delay: -0.08s;
+  }
+  @keyframes thigh-back {
+    0%   { transform: rotate(-18deg); }
+    100% { transform: rotate(18deg);  }
+  }
+  @keyframes shin-back {
+    0%   { transform: rotate(-5deg);  }
+    100% { transform: rotate(25deg);  }
+  }
+
+  #walker:hover svg {
+    filter: drop-shadow(0 0 8px #7ef0ff) drop-shadow(0 0 16px #ff6fc0);
+  }
+  
 </style>
 </head>
 <body>
@@ -309,6 +423,55 @@
 
 <!-- ===== 像素女孩 ===== -->
 <img id="pixel-girl" src="girl_day1.png" alt="">
+
+<!-- ===== 跑动小人 ===== -->
+<div id="walker">
+  <div class="flip">
+    <svg viewBox="0 0 32 32">
+      <g id="tail-back">
+        <rect x="11" y="4"  width="3" height="7" fill="#ff6fc0"/>
+        <rect x="8"  y="9"  width="3" height="3" fill="#ff6fc0"/>
+        <rect x="5"  y="11" width="3" height="2" fill="#ff6fc0"/>
+      </g>
+      <g id="tail-front">
+        <rect x="13" y="3"  width="2" height="6" fill="#ff9ecb"/>
+        <rect x="9"  y="8"  width="4" height="2" fill="#ff9ecb"/>
+      </g>
+      <rect x="13" y="3"  width="12" height="13" fill="#ffd6ef"/>
+      <rect x="13" y="3"  width="7"  height="13" fill="#ff6fc0"/>
+      <rect x="18" y="3"  width="7"  height="4"  fill="#ff6fc0"/>
+      <rect x="22" y="10" width="2" height="3" fill="#2a0a4a"/>
+      <rect x="22" y="10" width="1" height="1" fill="#ffffff"/>
+      <rect x="20" y="13" width="2" height="2" fill="#ff9ecb"/>
+      <rect x="25" y="12" width="1" height="1" fill="#ffd6ef"/>
+      <rect x="23" y="14" width="2" height="1" fill="#c04a7a"/>
+      <rect x="17" y="16" width="3" height="1" fill="#ffd6ef"/>
+      <rect x="14" y="17" width="8" height="6" fill="#2a2a3a"/>
+      <rect x="17" y="19" width="2" height="2" fill="#7ef0ff"/>
+      <g id="thigh-back">
+        <rect x="17" y="23" width="3" height="3" fill="#2a2a3a"/>
+      </g>
+      <g id="shin-back">
+        <rect x="17" y="26" width="3" height="3" fill="#c04a7a"/>
+        <rect x="17" y="29" width="4" height="2" fill="#a03060"/>
+      </g>
+      <g id="thigh-front">
+        <rect x="17" y="23" width="3" height="3" fill="#3a3a4a"/>
+      </g>
+      <g id="shin-front">
+        <rect x="17" y="26" width="3" height="3" fill="#ffd6ef"/>
+        <rect x="17" y="29" width="4" height="2" fill="#ff6fc0"/>
+      </g>
+      <g id="upper-arm">
+        <rect x="18" y="17" width="2" height="2" fill="#ffd6ef"/>
+        <rect x="20" y="19" width="2" height="2" fill="#ffd6ef"/>
+      </g>
+      <g id="forearm">
+        <rect x="22" y="21" width="2" height="2" fill="#ffd6ef"/>
+      </g>
+    </svg>
+  </div>
+</div>
 
 <!-- ===== 扫雷弹层 ===== -->
 <div class="overlay" id="minePanel">
