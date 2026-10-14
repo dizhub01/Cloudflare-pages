@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" shape-rendering="crispEdges">
+  <!-- ===== 背景（圆角深紫方块） ===== -->
+  <g fill="#2a0a4a">
+    <rect x="4"  y="0"  width="24" height="1"/>
+    <rect x="2"  y="1"  width="28" height="2"/>
+    <rect x="1"  y="3"  width="30" height="26"/>
+    <rect x="2"  y="29" width="28" height="2"/>
+    <rect x="4"  y="31" width="24" height="1"/>
+  </g>
+
+  <!-- ===== 辫子（先画，会被头挡住一部分） ===== -->
+  <!-- 左辫子：从头顶左侧往下垂，加粗加长 -->
+  <g fill="#FCB0DE">
+    <rect x="4"  y="6"  width="4" height="4"/>
+    <rect x="3"  y="10" width="4" height="4"/>
+    <rect x="2"  y="14" width="4" height="4"/>
+    <rect x="2"  y="18" width="4" height="4"/>
+    <rect x="3"  y="22" width="4" height="3"/>
+    <!-- 辫子亮色高光 -->
+    <rect x="4"  y="7"  width="2" height="2" fill="#F8E8F1"/>
+    <rect x="3"  y="15" width="2" height="2" fill="#F8E8F1"/>
+  </g>
+
+  <!-- 右辫子：镜像 -->
+  <g fill="#FCB0DE">
+    <rect x="24" y="6"  width="4" height="4"/>
+    <rect x="25" y="10" width="4" height="4"/>
+    <rect x="26" y="14" width="4" height="4"/>
+    <rect x="26" y="18" width="4" height="4"/>
+    <rect x="25" y="22" width="4" height="3"/>
+    <!-- 高光 -->
+    <rect x="26" y="7"  width="2" height="2" fill="#F8E8F1"/>
+    <rect x="27" y="15" width="2" height="2" fill="#F8E8F1"/>
+  </g>
+
+  <!-- ===== 圆角方形头 ===== -->
+  <g fill="#ffd6ef">
+    <rect x="10" y="5"  width="12" height="1"/>
+    <rect x="8"  y="6"  width="16" height="2"/>
+    <rect x="7"  y="8"  width="18" height="13"/>
+    <rect x="8"  y="21" width="16" height="2"/>
+    <rect x="10" y="23" width="12" height="1"/>
+  </g>
+
+  <!-- ===== 刘海：盖住上半脸，约到 y=14 ===== -->
+  <g fill="#FCB0DE">
+    <rect x="10" y="5"  width="12" height="1"/>
+    <rect x="8"  y="6"  width="16" height="2"/>
+    <rect x="7"  y="8"  width="18" height="7"/>
+  </g>
+
+  <!-- 刘海下缘发丝 -->
+  <g fill="#FCB0DE">
+    <rect x="9"  y="15" width="2"  height="1"/>
+    <rect x="14" y="15" width="1"  height="1"/>
+    <rect x="18" y="15" width="2"  height="1"/>
+    <rect x="22" y="15" width="1"  height="1"/>
+  </g>
+
+  <!-- ===== 眼睛：左 < 右 > ===== -->
+  <g fill="#2a0a4a">
+    <rect x="11" y="17" width="1" height="1"/>
+    <rect x="12" y="18" width="1" height="1"/>
+    <rect x="11" y="19" width="1" height="1"/>
+
+    <rect x="20" y="17" width="1" height="1"/>
+    <rect x="19" y="18" width="1" height="1"/>
+    <rect x="20" y="19" width="1" height="1"/>
+  </g>
+
+  <!-- ===== 腮红 ===== -->
+  <rect x="9"  y="20" width="2" height="1" fill="#F8E8F1"/>
+  <rect x="21" y="20" width="2" height="1" fill="#F8E8F1"/>
+
+  <!-- ===== 嘴：w 形 ===== -->
+  <g fill="#c04a7a">
+    <rect x="14" y="22" width="1" height="1"/>
+    <rect x="15" y="23" width="1" height="1"/>
+    <rect x="16" y="22" width="1" height="1"/>
+    <rect x="17" y="23" width="1" height="1"/>
+    <rect x="18" y="22" width="1" height="1"/>
+  </g>
+</svg>

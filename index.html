@@ -1,0 +1,2206 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>🎵 ✧˖°. diz ✦ vibes °.✧ 🎵</title>
+<link rel="icon" type="image/svg+xml" href="/favicon-girl.svg">
+
+  
+<style>
+  /* ============================================================
+     基础
+     ============================================================ */
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background: #12002b;
+    font-family: system-ui, sans-serif;
+  }
+
+  /* ============================================================
+     背景
+     ============================================================ */
+  #bg {
+    position: fixed; inset: 0;
+    background: url('bg8.png') center center / cover no-repeat;
+    z-index: 0;
+  }
+
+  /* ============================================================
+     热点
+     ============================================================ */
+  .hotspot {
+    position: fixed;
+    z-index: 6;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    transition: all .2s;
+    width: 40px;
+    height: 40px;
+    transform: translate(-50%, -50%);   /* ← 加这行 */
+  }
+  .hotspot:hover {
+    border-color: rgba(120, 240, 255, 0.9);
+    box-shadow: 0 0 24px rgba(120, 240, 255, 0.7), inset 0 0 18px rgba(255, 90, 190, 0.4);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  /* ============================================================
+     波纹
+     ============================================================ */
+  #ripple { position: fixed; z-index: 3; pointer-events: none; display: none; }
+  #ripple.on { display: block; }
+  #ripple .wave {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 90, 190, 0.9);
+    box-shadow: 0 0 24px rgba(120, 240, 255, 0.8), inset 0 0 18px rgba(255, 90, 190, 0.6);
+    transform: translate(-50%, -50%) scale(0);
+    animation: rippleOut 2s ease-out infinite;
+  }
+  @keyframes rippleOut {
+    0%   { transform: translate(-50%, -50%) scale(0.2); opacity: 0.95; }
+    100% { transform: translate(-50%, -50%) scale(2.4); opacity: 0; }
+  }
+
+  /* ============================================================
+     弹层通用
+     ============================================================ */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(10, 2, 24, 0.88);
+    backdrop-filter: blur(4px);
+    z-index: 10;
+    display: none;
+    align-items: center; justify-content: center;
+  }
+  .overlay.open { display: flex; }
+
+  .panel {
+    background: #1a0f2e;
+    border: 1px solid rgba(120, 240, 255, 0.45);
+    box-shadow: 0 0 40px rgba(255, 90, 190, 0.35);
+    border-radius: 12px;
+    padding: 18px;
+    max-width: 92vw; max-height: 90vh;
+    overflow: auto;
+    color: #e8e0f5;
+    position: relative;
+  }
+  .panel h3 {
+    margin: 0 0 12px;
+    color: #7ef0ff;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .close {
+    position: absolute; top: 10px; left: 10px;
+    z-index: 9999;
+    background: #1a0f2e;
+    border: 1px solid rgba(255, 90, 190, 0.6);
+    border-radius: 50%;
+    width: 30px; height: 30px;
+    color: #ff6fc0;
+    font-size: 20px;
+    cursor: pointer;
+    line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .close:hover { color: #fff; }
+
+  #minePanel  .panel { width: 420px; }
+  #boardPanel .panel { width: 720px; }
+  #aiPanel    .panel { width: 520px; }
+  #thanksPanel.panel { width: 420px; }
+  #stopfeedPanel .panel { width: 420px; }
+  #videoPanel .panel { width: 1080px; }
+  #videoPanel iframe {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: 0;
+    border-radius: 8px;
+    display: block;
+  }  
+
+  /* ============================================================
+     AI 聊天窗口
+     ============================================================ */
+  #aiMessages {
+    height: 340px;
+    overflow-y: auto;
+    background: #12002b;
+    border: 1px solid rgba(120, 240, 255, 0.25);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  #aiMessages::-webkit-scrollbar { width: 6px; }
+  #aiMessages::-webkit-scrollbar-thumb {
+    background: rgba(120,240,255,0.3);
+    border-radius: 3px;
+  }
+
+  .ai-msg {
+    max-width: 82%;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-break: break-word;
+    white-space: pre-wrap;
+  }
+  .ai-msg.user {
+    align-self: flex-end;
+    background: rgba(120, 240, 255, 0.15);
+    border: 1px solid rgba(120, 240, 255, 0.5);
+    color: #d8f8ff;
+  }
+  .ai-msg.bot {
+    align-self: flex-start;
+    background: rgba(255, 90, 190, 0.12);
+    border: 1px solid rgba(255, 90, 190, 0.4);
+    color: #ffd6ee;
+  }
+  .ai-msg.sys {
+    align-self: center;
+    background: transparent;
+    border: none;
+    color: #8a7fb0;
+    font-size: 12px;
+    font-style: italic;
+  }
+
+  #aiInputRow { display: flex; gap: 8px; }
+  #aiInput {
+    flex: 1;
+    padding: 10px 12px;
+    background: #12002b;
+    border: 1px solid rgba(120, 240, 255, 0.4);
+    border-radius: 8px;
+    color: #e8e0f5;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+  }
+  #aiInput:focus {
+    border-color: rgba(120, 240, 255, 0.9);
+    box-shadow: 0 0 12px rgba(120,240,255,0.4);
+  }
+  #aiSend {
+    padding: 10px 18px;
+    background: rgba(120, 240, 255, 0.15);
+    border: 1px solid rgba(120, 240, 255, 0.7);
+    border-radius: 8px;
+    color: #7ef0ff;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  #aiSend:hover { background: rgba(120, 240, 255, 0.3); color: #fff; }
+  #aiSend:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ============================================================
+     像素女孩
+     ============================================================ */
+  #pixel-girl {
+    position: fixed;
+    left: 18%;
+    bottom: 0;
+    height: 40vh;
+    z-index: 4;
+    pointer-events: none;
+    image-rendering: pixelated;
+    user-select: none;
+  }
+
+    /* ============================================================
+     跑动小人
+     ============================================================ */
+  #walker {
+    position: fixed;
+    bottom: 0;                     /* 贴底，0 边距 */
+    left: 0;
+    z-index: 6;                    /* 最上层：高于像素女孩(4)、拖尾(5)，低于弹层(10) */
+    cursor: pointer;
+    pointer-events: auto;
+    animation: walk-across 48s linear infinite;
+    will-change: transform;
+  }
+  #walker .flip {
+    display: block;
+    animation: flip-dir 48s linear infinite;
+    transform-origin: center;
+  }
+  #walker svg {
+    display: block;
+    width: 67px;
+    height: 67px;
+    image-rendering: pixelated;
+    overflow: visible;
+  }
+
+  @keyframes walk-across {
+    0%   { transform: translateX(-100px); }
+    49%  { transform: translateX(calc(100vw + 100px)); }
+    50%  { transform: translateX(calc(100vw + 100px)); }
+    99%  { transform: translateX(-100px); }
+    100% { transform: translateX(-100px); }
+  }
+  @keyframes flip-dir {
+    0%   { transform: scaleX(1);  }
+    49%  { transform: scaleX(1);  }
+    50%  { transform: scaleX(-1); }
+    99%  { transform: scaleX(-1); }
+    100% { transform: scaleX(1);  }
+  }
+
+  /* 辫子 */
+  #tail-back,
+  #tail-front {
+    transform-origin: 100% 20%;
+    animation: tail-sway 0.4s ease-in-out infinite alternate;
+  }
+  #tail-front { animation-delay: 0.2s; }
+  @keyframes tail-sway {
+    0%   { transform: rotate(0deg)  translateX(0); }
+    100% { transform: rotate(-8deg) translateX(-1px); }
+  }
+
+  /* 手臂 */
+  #upper-arm {
+    transform-origin: 18px 17px;
+    animation: upper-arm-swing 0.16s steps(2, end) infinite alternate;
+  }
+  #forearm {
+    transform-origin: 22px 21px;
+    animation: forearm-bend 0.16s steps(2, end) infinite alternate;
+    animation-delay: -0.08s;
+  }
+  @keyframes upper-arm-swing {
+    0%   { transform: rotate(-10deg); }
+    100% { transform: rotate(14deg);  }
+  }
+  @keyframes forearm-bend {
+    0%   { transform: rotate(-20deg); }
+    100% { transform: rotate(10deg);  }
+  }
+
+  /* 前腿 */
+  #thigh-front {
+    transform-origin: 18px 23px;
+    animation: thigh-front 0.16s steps(2, end) infinite alternate;
+  }
+  #shin-front {
+    transform-origin: 18px 26px;
+    animation: shin-front 0.16s steps(2, end) infinite alternate;
+  }
+  @keyframes thigh-front {
+    0%   { transform: rotate(18deg);  }
+    100% { transform: rotate(-18deg); }
+  }
+  @keyframes shin-front {
+    0%   { transform: rotate(25deg);  }
+    100% { transform: rotate(-5deg);  }
+  }
+
+  /* 后腿 */
+  #thigh-back {
+    transform-origin: 18px 23px;
+    animation: thigh-back 0.16s steps(2, end) infinite alternate;
+    animation-delay: -0.08s;
+  }
+  #shin-back {
+    transform-origin: 18px 26px;
+    animation: shin-back 0.16s steps(2, end) infinite alternate;
+    animation-delay: -0.08s;
+  }
+  @keyframes thigh-back {
+    0%   { transform: rotate(-18deg); }
+    100% { transform: rotate(18deg);  }
+  }
+  @keyframes shin-back {
+    0%   { transform: rotate(-5deg);  }
+    100% { transform: rotate(25deg);  }
+  }
+
+  #walker:hover svg {
+    filter: drop-shadow(0 0 8px #7ef0ff) drop-shadow(0 0 16px #ff6fc0);
+  }
+  /* 暂停状态 */
+  #walker.paused,
+  #walker.paused .flip,
+  #walker.paused svg,
+  #walker.paused #tail-back,
+  #walker.paused #tail-front,
+  #walker.paused #upper-arm,
+  #walker.paused #forearm,
+  #walker.paused #thigh-front,
+  #walker.paused #shin-front,
+  #walker.paused #thigh-back,
+  #walker.paused #shin-back {
+    animation-play-state: paused;
+  }
+
+  /* 点击提示 */
+  #walker:hover svg {
+    filter: drop-shadow(0 0 8px #7ef0ff) drop-shadow(0 0 16px #ff6fc0);
+  }
+
+    /* ============================================================
+     DOS 自检闪屏
+     ============================================================ */
+  #bios {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #000;
+    color: #00ff66;
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-size: 16px;
+    line-height: 1.6;
+    padding: 40px 50px;
+    white-space: pre;
+    overflow: hidden;
+    cursor: pointer;
+    text-shadow: 0 0 4px #00ff66, 0 0 10px rgba(0,255,102,0.6);
+    transition: opacity .6s ease;
+  }
+  #bios.fade-out {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #bios .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    background: #00ff66;
+    vertical-align: middle;
+    animation: bios-blink 0.8s steps(2) infinite;
+    margin-left: 2px;
+  }
+  @keyframes bios-blink {
+    0%, 50%   { opacity: 1; }
+    50.01%, 100% { opacity: 0; }
+  }
+
+  #bios-skip {
+    position: absolute;
+    bottom: 20px;
+    right: 30px;
+    font-size: 12px;
+    color: rgba(0, 255, 102, 0.5);
+    letter-spacing: 1px;
+  }
+  /* ============================================================
+     台灯火花粒子 + 悬停边缘光
+     ============================================================ */
+  /* 四个热点共用悬停效果 */
+  .hotspot {
+    transition: box-shadow .5s ease, background .5s ease;
+  }
+  .hotspot:hover {
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+  }
+  .hotspot::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: rgba(var(--hot-r), var(--hot-g), var(--hot-b), 0.85);
+    box-shadow:
+      0 0 12px 4px rgba(var(--hot-r), var(--hot-g), var(--hot-b), 0.65),
+      0 0 30px 9px rgba(var(--hot-r), var(--hot-g), var(--hot-b), 0.35);
+    opacity: 0;
+    transition: opacity .3s ease;
+    pointer-events: none;
+  }
+  .hotspot:hover::before {
+    opacity: 1;
+  }
+
+  /* 火花粒子 */
+  .hotspot .spark {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgb(var(--hot-r), var(--hot-g), var(--hot-b));
+    box-shadow:
+      0 0 10px 3px rgba(var(--hot-r), var(--hot-g), var(--hot-b), 0.95),
+      0 0 20px 6px rgba(var(--hot-r), var(--hot-g), var(--hot-b), 0.5);
+    pointer-events: none;
+    opacity: 0;
+    animation: spark-float 3s ease-out forwards;
+  }
+
+  /* 每个热点的颜色变量 */
+  #hs-lamp  { --hot-r: 255; --hot-g: 255; --hot-b: 242; }   /* 暖白 */
+  #hs-mine  { --hot-r: 120; --hot-g: 240; --hot-b: 255; }   /* 青蓝 */
+  #hs-board { --hot-r: 255; --hot-g: 150; --hot-b: 220; }   /* 粉紫 */
+  #hs-music { --hot-r: 180; --hot-g: 255; --hot-b: 200; }   /* 嫩绿 */
+  #hs-video { --hot-r: 255; --hot-g: 120; --hot-b: 200; }   /* 粉色 */
+  #hs-water { --hot-r: 255; --hot-g: 255; --hot-b: 242; }   /* 暖白 */
+  #hs-feed  { --hot-r: 255; --hot-g: 120; --hot-b: 200; }   /* 粉色 */
+  
+  @keyframes spark-float {
+    0%   { opacity: 0;  transform: translate(0, 0) scale(0.3); }
+    15%  { opacity: 1;  transform: translate(0, -4px) scale(1.1); }
+    100% { opacity: 0;  transform: translate(0, -40px) scale(0.5); }
+  }
+  
+  /* 火花从小变大、往上飘、最后淡出 */
+  @keyframes spark-float {
+    0%   { opacity: 0;  transform: translate(0, 0) scale(0.4); }
+    20%  { opacity: 1;  transform: translate(0, -2px) scale(1); }
+    100% { opacity: 0;  transform: translate(0, -22px) scale(0.6); }
+  }  
+
+  /* ============================================================
+     电子钟
+     ============================================================ */
+  #clock {
+    position: fixed;
+    z-index: 4;
+    left: 0;
+    top: 0;
+    background: transparent;
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-weight: bold;
+    font-style: italic;
+    font-size: 20px;                 /* 会被 JS 覆盖，按背景图比例缩放 */
+    letter-spacing: 3px;
+    color: #7ef0ff;
+    text-shadow:
+      0 0 4px #7ef0ff,
+      0 0 10px rgba(120, 240, 255, 0.7),
+      0 0 20px rgba(120, 240, 255, 0.4);
+    image-rendering: pixelated;
+    user-select: none;
+    white-space: nowrap;
+    pointer-events: none;
+    transform-origin: left top;
+    opacity: 0;                      /* 等 JS 定位好再显示，避免闪一下 */
+  }
+  #clock.ready { opacity: 1; }
+
+  #clock .day {
+    color: #ff96dc;
+    text-shadow:
+      0 0 4px #ff96dc,
+      0 0 10px rgba(255, 150, 220, 0.7),
+      0 0 20px rgba(255, 150, 220, 0.4);
+    margin-right: 12px;
+  }
+
+  /* ============================================================
+     音乐 Vibe GIF
+     ============================================================ */
+  #music-vibe {
+    position: fixed;
+    z-index: 4;
+    pointer-events: none;
+    user-select: none;
+    width: 10vw;
+    height: auto;
+    image-rendering: pixelated;
+    opacity: 0;                     /* 默认透明，不是 display:none */
+    transition: opacity .9s ease;   /* 0.9 秒淡入淡出 */
+  }
+  #music-vibe.on {
+    opacity: 0.4;                   /* 播放时的不透明度 */
+  }
+
+  /* ============================================================
+     浇水动画
+     ============================================================ */
+  #watering-anim {
+    position: fixed;
+    z-index: 7;
+    display: none;              /* 默认隐藏 */
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .3s ease;
+  }
+  #watering-anim.show {
+    display: block;
+    opacity: 1;
+  }
+
+  #watering-anim .watering-can {
+    position: absolute;
+    transform: translate(-50%, -50%);
+  }
+
+  #watering-anim .can-body {
+    width: 100%;
+    height: 100%;
+    transform-origin: 70% 80%;
+    animation: can-tilt 3.5s ease-in-out infinite;
+  }
+
+  #watering-anim .drops {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 128px;
+    height: 256px;
+    opacity: 0;
+    animation: drops-show 3.5s ease-in-out infinite;
+  }
+
+    @keyframes can-tilt {
+    0%, 43%    { transform: rotate(0deg); }
+    50%        { transform: rotate(-45deg); }
+    85%        { transform: rotate(-45deg); }
+    100%       { transform: rotate(0deg); }
+  }
+
+  @keyframes drops-show {
+    0%, 45%   { opacity: 0; }
+    55%, 80%  { opacity: 1; }
+    90%, 100% { opacity: 0; }
+  }
+
+  /* ============================================================
+     CRT 扫描线（只在台灯切换时触发）
+     ============================================================ */
+
+  #crt-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    pointer-events: none;
+    opacity: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.00)  0px,
+      rgba(255, 255, 255, 0.00)  2px,
+      rgba(255, 255, 255, 0.10)  3px,
+      rgba(255, 255, 255, 0.10)  4px
+    );
+    transition: opacity 1s ease;
+  }
+  #crt-overlay.on {
+    opacity: 1;                            /* 合法值 */
+  }
+
+  /* ============================================================
+     鱼缸
+     ============================================================ */
+  #fish-tank {
+    position: fixed;
+    z-index: 4;
+    pointer-events: auto;
+    overflow: hidden;
+    /* 位置和尺寸由 JS 动态设置 */
+  }
+
+  .fish {
+    position: absolute;
+    will-change: transform;
+    pointer-events: none;
+  }
+  .fish svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    overflow: visible;
+  }
+
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(200, 240, 255, 0.6);
+    border: 1px solid rgba(220, 250, 255, 0.9);
+    pointer-events: none;
+    animation: bubble-rise 4s ease-out forwards;
+  }
+  @keyframes bubble-rise {
+    0%   { transform: translateY(0) scale(0.6); opacity: 0; }
+    15%  { opacity: 0.9; }
+    80%  { opacity: 0.7; }
+    100% { transform: translateY(-150px) scale(1); opacity: 0; }
+  }
+  /* 鱼缸暂停时头顶冒的小气泡 */
+  .fish-pause-bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(220, 245, 255, 0.7);
+    border: 1px solid rgba(240, 250, 255, 0.95);
+    pointer-events: none;
+    animation: pause-bubble-rise 1.2s ease-out forwards;
+  }
+  @keyframes pause-bubble-rise {
+    0%   { transform: translateY(0) scale(0.4); opacity: 0; }
+    20%  { opacity: 1; }
+    100% { transform: translateY(-30px) scale(1); opacity: 0; }
+  }  
+
+  /* ============================================================
+     鱼食袋 + 鱼食粒
+     ============================================================ */
+  #food-bag {
+    position: fixed;
+    z-index: 8;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .3s ease;
+    transform-origin: 30% 80%;   /* 倾斜支点在左下角 */
+  }
+  #food-bag.on {
+    opacity: 1;
+  }
+  #food-bag.tilt {
+    animation: bag-tilt 3.5s ease-in-out infinite;
+  }
+
+  /* 袋子倾斜动画：0° → -45° → 保持 → 回 0° */
+  @keyframes bag-tilt {
+    0%, 15%   { transform: rotate(0deg); }
+    25%       { transform: rotate(-45deg); }
+    75%       { transform: rotate(-45deg); }
+    90%, 100% { transform: rotate(0deg); }
+  }
+
+  #food-bag svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    overflow: visible;
+  }
+
+  /* 鱼食粒（从袋口落下） */
+  .food-pellet {
+    position: absolute;
+    border-radius: 50%;
+    background: #FFF2C8;
+    border: 1px solid #E0B860;
+    pointer-events: none;
+    animation: pellet-fall 2s ease-in forwards;
+  }
+  @keyframes pellet-fall {
+    0%   { transform: translate(0, 0); opacity: 0; }
+    10%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { transform: translate(-10px, 50px); opacity: 0; }
+  }  
+  
+</style>
+</head>
+
+
+
+
+  
+<body>
+  
+<!-- ===== DOS 自检闪屏 ===== -->
+<div id="bios">
+  <div id="bios-text"></div><span class="cursor"></span>
+  <div id="bios-skip">[ CLICK ANYWHERE TO SKIP ]</div>
+</div>
+  
+<!-- ===== 背景 ===== -->
+<div id="bg"></div>
+
+<!-- ===== CRT 扫描线 ===== -->
+<div id="crt-overlay"></div>  
+  
+<!-- ===== 六个热点 ===== -->
+<div class="hotspot" id="hs-mine"  data-x="63.7" data-y="32"   title="Click: Minesweeper"></div>
+<div class="hotspot" id="hs-music" data-x="44.87" data-y="66.57" title="Click: Music"></div>
+<div class="hotspot" id="hs-board" data-x="78" data-y="45"   title="Click: Board"></div>
+<div class="hotspot" id="hs-lamp"  data-x="89.3" data-y="60.7" title="Click: Lamp"></div>
+<div class="hotspot" id="hs-video" data-x="64.9" data-y="44.5" title="Click: Video"></div>  
+<div class="hotspot" id="hs-water" data-x="6.4" data-y="51" title="Click: Water"></div>  
+<div class="hotspot" id="hs-feed" data-x="45.5" data-y="48" title="Click: Feed"></div>
+  
+<!-- ===== 电子钟 ===== -->
+<div id="clock">
+  <span class="day" id="clock-day">MON</span><span id="clock-time">00:00</span>
+</div>
+
+<!-- ===== 音乐 Vibe GIF ===== -->
+<img id="music-vibe" src="music_vibe.gif" alt=""> 
+  
+<!-- ===== 波纹容器 ===== -->
+<div id="ripple"></div>
+
+<!-- ===== 鱼缸 ===== -->
+<div id="fish-tank"></div>
+
+<!-- ===== 鱼食袋 ===== -->
+<div id="food-bag">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="96" height="96" shape-rendering="crispEdges">
+    <!-- 袋子主体（粉色方形） -->
+    <g fill="#FA92FB">
+      <rect x="8"  y="10" width="16" height="14"/>
+    </g>
+    <!-- 袋子暗部 -->
+    <g fill="#C034C1">
+      <rect x="8"  y="22" width="16" height="2"/>
+    </g>
+    <!-- 袋子亮部 -->
+    <g fill="#FCC3FD">
+      <rect x="10" y="12" width="4" height="8"/>
+    </g>
+    <!-- 袋子顶部开口（斜的） -->
+    <g fill="#8F2790">
+      <rect x="10" y="9" width="12" height="1"/>
+      <rect x="11" y="8" width="10" height="1"/>
+    </g>
+    <!-- 开口内侧（暗色） -->
+    <g fill="#4A0A4A">
+      <rect x="12" y="10" width="8" height="1"/>
+    </g>
+    <!-- 袋子上的 ♥ 图案 -->
+    <g fill="#FFF2F8">
+      <!-- ♥ 左半 -->
+      <rect x="12" y="15" width="2" height="2"/>
+      <rect x="11" y="16" width="4" height="2"/>
+      <!-- ♥ 右半 -->
+      <rect x="18" y="15" width="2" height="2"/>
+      <rect x="17" y="16" width="4" height="2"/>
+      <!-- ♥ 底部尖 -->
+      <rect x="12" y="18" width="8" height="1"/>
+      <rect x="14" y="19" width="4" height="1"/>
+      <rect x="15" y="20" width="2" height="1"/>
+    </g>
+  </svg>
+
+  <!-- 倒出的鱼食（JS 动态生成，这里留空） -->
+</div>  
+  
+<!-- ===== 像素女孩 ===== -->
+<img id="pixel-girl" src="girl_day1.png" alt="">
+
+<!-- ===== 跑动小人 ===== -->
+<div id="walker">
+  <div class="flip">
+    <svg viewBox="0 0 32 32">
+      <!-- ===== 双马尾 ===== -->
+      <g id="tail-back">
+        <rect x="11" y="4"  width="3" height="7" fill="#FCB0DE"/>
+        <rect x="8"  y="9"  width="3" height="3" fill="#FCB0DE"/>
+        <rect x="5"  y="11" width="3" height="2" fill="#FCB0DE"/>
+      </g>
+      <g id="tail-front">
+        <rect x="13" y="3"  width="2" height="6" fill="#F8E8F1"/>
+        <rect x="9"  y="8"  width="4" height="2" fill="#F8E8F1"/>
+      </g>
+
+      <!-- ===== 头 ===== -->
+      <rect x="13" y="3"  width="12" height="13" fill="#ffd6ef"/>
+      <rect x="13" y="3"  width="7"  height="13" fill="#FCB0DE"/>
+      <!-- 刘海加长：盖到 y=10 -->
+      <rect x="18" y="3"  width="7"  height="7"  fill="#FCB0DE"/>
+      <!-- 眼睛（< 形） -->
+      <rect x="22" y="10" width="1" height="1" fill="#2a0a4a"/>
+      <rect x="23" y="11" width="1" height="1" fill="#2a0a4a"/>
+      <rect x="22" y="12" width="1" height="1" fill="#2a0a4a"/>
+      <!-- 腮红 -->
+      <rect x="20" y="13" width="2" height="2" fill="#F8E8F1"/>
+      <!-- 嘴（缩短一格） -->
+      <rect x="23" y="14" width="1" height="1" fill="#c04a7a"/>
+      <!-- 脖子 -->
+      <rect x="17" y="16" width="3" height="1" fill="#ffd6ef"/>
+
+      <!-- ===== 身体 ===== -->
+      <rect x="14" y="17" width="8" height="6" fill="#2a2a3a"/>
+      <rect x="17" y="19" width="2" height="2" fill="#7ef0ff"/>
+
+      <!-- ===== 后腿（先画） ===== -->
+      <g id="thigh-back">
+        <rect x="17" y="23" width="3" height="3" fill="#2a2a3a"/>
+      </g>
+      <g id="shin-back">
+        <rect x="17" y="26" width="3" height="3" fill="#c04a7a"/>
+        <rect x="17" y="29" width="4" height="2" fill="#c05080"/>
+      </g>
+
+      <!-- ===== 前腿（后画，盖住后腿） ===== -->
+      <g id="thigh-front">
+        <rect x="17" y="23" width="3" height="3" fill="#3a3a4a"/>
+      </g>
+      <g id="shin-front">
+        <rect x="17" y="26" width="3" height="3" fill="#ffd6ef"/>
+        <rect x="17" y="29" width="4" height="2" fill="#ff6fc0"/>
+      </g>
+
+      <!-- ===== 手臂 ===== -->
+      <g id="upper-arm">
+        <rect x="18" y="17" width="2" height="2" fill="#ffd6ef"/>
+        <rect x="20" y="19" width="2" height="2" fill="#ffd6ef"/>
+      </g>
+      <g id="forearm">
+        <rect x="22" y="21" width="2" height="2" fill="#ffd6ef"/>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<!-- ===== 扫雷弹层 ===== -->
+<div class="overlay" id="minePanel">
+  <div class="panel">
+    <button class="close" onclick="event.stopPropagation(); closeAll()">×</button>
+    <h3>Minesweeper</h3>
+    <div id="mineApp"></div>
+  </div>
+</div>
+
+<!-- ===== 留言弹层 ===== -->
+<div class="overlay" id="boardPanel">
+  <div class="panel">
+    <button class="close" onclick="event.stopPropagation(); closeAll()">×</button>
+    <h3>Message Board</h3>
+    <div id="giscusWrap"></div>
+  </div>
+</div>
+
+<!-- ===== AI 聊天弹层 ===== -->
+<div class="overlay" id="aiPanel">
+  <div class="panel">
+    <button class="close" onclick="event.stopPropagation(); closeAll()">×</button>
+    <h3>AI Chat · GLM-5.3-Flash</h3>
+    <div id="aiMessages">
+      <div class="ai-msg sys">Hello, I am GLM. ☞(⌐■_■)☞ Human, need any help?</div>
+    </div>
+    <div id="aiInputRow">
+      <input id="aiInput" type="text" placeholder="⋆｡˚❀ (｡•ᴗ•｡) ❀˚｡⋆" autocomplete="off" />
+      <button id="aiSend">send</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 视频弹层 ===== -->
+<div class="overlay" id="videoPanel">
+  <div class="panel">
+    <button class="close" onclick="event.stopPropagation(); closeAll()">×</button>
+    <h3>Video</h3>
+    <iframe
+      src="https://www.youtube.com/embed/RRE2P0fM-DQ"
+      title="Video"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen></iframe>
+  </div>
+</div>
+
+<!-- ===== 浇水动画 ===== -->
+<div id="watering-anim">
+  <div class="watering-can">
+    <div class="can-body">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="128" height="128" shape-rendering="crispEdges">
+        <!-- 壶身主色（浅粉） -->
+        <g fill="#C034C1">
+          <rect x="14" y="16" width="14" height="10"/>
+          <rect x="15" y="15" width="12" height="1"/>
+          <rect x="15" y="26" width="12" height="1"/>
+        </g>
+        <!-- 壶身暗部 -->
+        <g fill="#8F2790">
+          <rect x="14" y="24" width="14" height="2"/>
+        </g>
+        <!-- 壶身中调高光 -->
+        <g fill="#FA92FB">
+          <rect x="16" y="17" width="1" height="6"/>
+        </g>
+        <!-- 壶身亮部反光 -->
+        <g fill="#FCC3FD">
+          <rect x="17" y="17" width="1" height="6"/>
+        </g>
+        <!-- 壶盖 -->
+        <g fill="#C034C1">
+          <rect x="18" y="12" width="6" height="3"/>
+        </g>
+        <g fill="#FA92FB">
+          <rect x="19" y="13" width="4" height="1"/>
+        </g>
+        <g fill="#FCC3FD">
+          <rect x="20" y="11" width="2" height="1"/>
+        </g>
+        <!-- 提手 -->
+        <g fill="#C034C1">
+          <rect x="28" y="18" width="2" height="2"/>
+          <rect x="29" y="20" width="2" height="3"/>
+          <rect x="28" y="23" width="2" height="2"/>
+        </g>
+        <g fill="#FA92FB">
+          <rect x="28" y="18" width="1" height="1"/>
+        </g>
+        <!-- 壶嘴 -->
+        <g fill="#C034C1">
+          <rect x="10" y="15" width="4" height="2"/>
+          <rect x="8"  y="14" width="2" height="2"/>
+        </g>
+        <g fill="#FA92FB">
+          <rect x="10" y="15" width="3" height="1"/>
+        </g>
+        <g fill="#FCC3FD">
+          <rect x="8" y="14" width="1" height="1"/>
+        </g>
+      </svg>
+    </div>
+    <svg class="drops" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 64" width="128" height="256" shape-rendering="crispEdges">
+      <g fill="#FEE8FE">
+        <rect x="6" y="33" width="1" height="1"/>
+        <rect x="6" y="38" width="1" height="1"/>
+        <rect x="6" y="44" width="1" height="1"/>
+        <rect x="6" y="50" width="1" height="1"/>
+        <rect x="5" y="56" width="1" height="1"/>
+        <rect x="7" y="56" width="1" height="1"/>
+      </g>
+    </svg>
+  </div>
+</div>  
+
+<!-- ===== 浇水彩蛋弹层 ===== -->
+<div class="overlay" id="thanksPanel">
+  <div class="panel">
+    <button class="close" onclick="event.stopPropagation(); closeAll()">×</button>
+    <h3> Thank you！🌹</h3>
+    <p style="text-align:center; font-size:16px; line-height:1.6; margin: 0;">
+      You have watered the plants for 10 times.<br> 
+    </p>
+  </div>
+</div>
+
+<!-- ===== 喂鱼彩蛋弹层 ===== -->
+<div class="overlay" id="stopfeedPanel">
+  <div class="panel">
+    <button class="close" onclick="event.stopPropagation(); closeAll()">×</button>
+    <h3> 💀🐟💀</h3>
+    <p style="text-align:center; font-size:16px; line-height:1.6; margin: 0;">
+      That was too much...<br> 
+    </p>
+  </div>
+</div>  
+  
+<!-- ===== 鼠标拖尾画布 ===== -->
+<canvas id="cursor-fx-canvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:5;"></canvas>
+
+
+  
+<script>
+  
+/* ============================================================
+   音效
+   ============================================================ */
+const sfx = {
+  click: new Audio('sound-off-button-on-table-lamp.mp3'),
+  win:   new Audio('sound-8-bit-audio-with-bonus.mp3'),
+  lose:  new Audio('sound-bomb-explosion-with-flying-fragments.mp3'),
+  purr:  new Audio('sound-cute-purr.mp3'),
+  hover: new Audio('sound-hollow-single-click-sound.mp3'),
+  water: new Audio('sound-small-splash-on-the-seashore.mp3'),
+  bubble: new Audio('sound-swamp-bubbles.mp3'),
+};
+
+// 预加载 + 后台静音预热
+Object.values(sfx).forEach(a => {
+  a.preload = 'auto';
+  a.load();
+
+  // 静音播一遍再暂停：让浏览器"记住"这个音频已经被允许播放
+  a.volume = 0;
+  a.play().then(() => {
+    a.pause();
+    a.currentTime = 0;
+    a.volume = 1;         // 恢复音量，之后正常播
+  }).catch(() => {
+    a.volume = 1;         // 被浏览器拦了就忽略，用户首次点击时会自然解锁
+  });
+});
+
+function playSfx(name) {
+  const a = sfx[name];
+  if (!a) return;
+  a.currentTime = 0;
+  a.play().catch(() => {});
+}
+
+  // 把所有音效静音播一遍，让浏览器"解锁"它们
+function unlockSfx() {
+  Object.values(sfx).forEach(a => {
+    const vol = a.volume;
+    a.volume = 0;
+    a.play().then(() => {
+      a.pause();
+      a.currentTime = 0;
+      a.volume = vol;
+    }).catch(() => {
+      a.volume = vol;
+    });
+  });
+}
+
+/* ============================================================
+   热点 hover 音效
+   ============================================================ */
+const hoverCooldown = {};   // 记录每个热点上次播放时间
+document.querySelectorAll('.hotspot').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    const now = Date.now();
+    if (hoverCooldown[el.id] && now - hoverCooldown[el.id] < 300) return;
+    hoverCooldown[el.id] = now;
+    playSfx('hover');
+  });
+});
+
+/* ============================================================
+   热点火花粒子（萤火虫）
+   ============================================================ */
+function startSparks(hotspotId) {
+  const el = document.getElementById(hotspotId);
+  if (!el) return;
+  el.style.position = 'fixed';   // 保证 absolute 子元素以它为参照
+  el.style.overflow = 'visible';
+
+  function spawn() {
+    // 在热点内随机位置生成 1~2 个火花
+    const count = 2 + Math.floor(Math.random() * 3);   // 每次 2~4 个
+    for (let i = 0; i < count; i++) {
+      const s = document.createElement('div');
+      s.className = 'spark';
+      // 相对热点内的随机位置
+      s.style.left = (Math.random() * 80 - 10) + '%';
+      s.style.top  = (Math.random() * 80 - 10) + '%';
+      s.style.animationDelay = (Math.random() * 0.4) + 's';
+      el.appendChild(s);
+      // 动画结束后自动移除
+      setTimeout(() => s.remove(), 3000);
+    }
+    // 下次闪烁：5~8 秒后
+    const next = 3500 + Math.random() * 2500;   // 3.5~6 秒
+    setTimeout(spawn, next);
+  }
+
+  // 首次延迟 1~3 秒，避免刚加载就闪
+  setTimeout(spawn, 1000 + Math.random() * 2000);
+}
+
+/* 启动：给所有热点挂上火花 */
+startSparks('hs-lamp');
+startSparks('hs-mine');
+startSparks('hs-board');
+startSparks('hs-music');
+startSparks('hs-video');
+startSparks('hs-water');
+startSparks('hs-feed');
+  
+/* ============================================================
+   热点动态定位（按背景图实际渲染尺寸计算）
+   ============================================================ */
+const BG_IMG_SRC = 'bg8.png';   // ← 和 CSS 里 #bg 用的背景图一致
+
+function placeHotspots() {
+  const img = new Image();
+  img.src = BG_IMG_SRC;
+
+  const doPlace = () => {
+    const imgW = img.naturalWidth;
+    const imgH = img.naturalHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    // 模拟 background-size: cover 的缩放和偏移
+    const scale = Math.max(vw / imgW, vh / imgH);
+    const renderW = imgW * scale;
+    const renderH = imgH * scale;
+    const offsetX = (vw - renderW) / 2;
+    const offsetY = (vh - renderH) / 2;
+
+    document.querySelectorAll('.hotspot[data-x]').forEach(el => {
+      const px = parseFloat(el.dataset.x) / 100;
+      const py = parseFloat(el.dataset.y) / 100;
+      el.style.left = (offsetX + renderW * px) + 'px';
+      el.style.top  = (offsetY + renderH * py) + 'px';
+    });
+  };
+
+  if (img.complete && img.naturalWidth) {
+    doPlace();
+  } else {
+    img.onload = doPlace;
+  }
+}
+
+window.addEventListener('load', placeHotspots);
+window.addEventListener('resize', placeHotspots);
+placeHotspots();
+
+/* ============================================================
+   电子钟 - 走时
+   ============================================================ */
+(function clockTick() {
+  const dayEl  = document.getElementById('clock-day');
+  const timeEl = document.getElementById('clock-time');
+  if (!dayEl || !timeEl) return;
+
+  const DAYS = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+
+  function update() {
+    const now = new Date();
+    const d = DAYS[now.getDay()];
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const ss = String(now.getSeconds()).padStart(2, '0');
+
+    dayEl.textContent  = d;
+    timeEl.textContent = hh + ':' + mm + ':' + ss;
+  }
+
+  update();
+  setInterval(update, 200);   // 200ms 刷新一次，秒数不会跳拍
+})();
+
+/* ============================================================
+   电子钟 - 位置和缩放（跟随背景图）
+   ============================================================ */
+/* 编辑下面这 4 个值来调位置、角度、大小 */
+const CLOCK_CFG = {
+  x: 92.55,              // 在背景图宽度上的百分比位置（0~100）
+  y: 15.85,               // 在背景图高度上的百分比位置（0~100）
+  sizePercent: 0.82,   // 字号 = 背景图宽度的百分之几
+  rotate: -15          // 倾斜角度
+};
+
+function placeClock() {
+  const el = document.getElementById('clock');
+  const bgImg = new Image();
+  bgImg.src = BG_IMG_SRC;   // 复用 placeHotspots 里定义的背景图路径
+
+  const doPlace = () => {
+    const imgW = bgImg.naturalWidth;
+    const imgH = bgImg.naturalHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    // 模拟 cover 缩放
+    const scale = Math.max(vw / imgW, vh / imgH);
+    const renderW = imgW * scale;
+    const renderH = imgH * scale;
+    const offsetX = (vw - renderW) / 2;
+    const offsetY = (vh - renderH) / 2;
+
+    // 位置
+    const x = offsetX + renderW * (CLOCK_CFG.x / 100);
+    const y = offsetY + renderH * (CLOCK_CFG.y / 100);
+
+    // 字号：按背景图渲染宽度比例缩放
+    const fontSize = renderW * (CLOCK_CFG.sizePercent / 100);
+
+    el.style.fontSize = fontSize + 'px';
+    el.style.left = x + 'px';
+    el.style.top  = y + 'px';
+    el.style.transform = `rotate(${CLOCK_CFG.rotate}deg)`;
+    el.style.transformOrigin = 'left center';
+    el.classList.add('ready');
+  };
+
+  if (bgImg.complete && bgImg.naturalWidth) {
+    doPlace();
+  } else {
+    bgImg.onload = doPlace;
+  }
+}
+
+window.addEventListener('load', placeClock);
+window.addEventListener('resize', placeClock);
+placeClock();
+  
+/* ============================================================
+   弹层开关
+   ============================================================ */
+const overlays = {
+  mine:   document.getElementById('minePanel'),
+  board:  document.getElementById('boardPanel'),
+  ai:     document.getElementById('aiPanel'),
+  video:  document.getElementById('videoPanel'),
+  thanks: document.getElementById('thanksPanel'),
+  stopfeed: document.getElementById('stopfeedPanel'),  
+};
+  
+function closeAll() {
+  Object.values(overlays).forEach(o => { if (o) o.classList.remove('open'); });
+  document.getElementById('cursor-fx-canvas').style.display = 'block';
+  document.getElementById('walker').classList.remove('paused');
+
+  // 关闭视频弹层时，重置 iframe 以停止播放
+  const iframe = document.querySelector('#videoPanel iframe');
+  if (iframe) iframe.src = iframe.src;
+}
+
+document.getElementById('hs-mine').addEventListener('click', () => {
+  playSfx('click');
+  overlays.mine.classList.add('open');
+  document.getElementById('cursor-fx-canvas').style.display = 'none';
+  initMine();
+});
+document.getElementById('hs-board').addEventListener('click', () => {
+  playSfx('click');
+  overlays.board.classList.add('open');
+  document.getElementById('cursor-fx-canvas').style.display = 'none';
+  loadGiscus();
+});
+document.getElementById('hs-video').addEventListener('click', () => {
+  playSfx('click');
+  overlays.video.classList.add('open');
+  document.getElementById('cursor-fx-canvas').style.display = 'none';
+});  
+
+/* 点击小人：暂停走路 + 打开 AI 弹层 */
+document.getElementById('walker').addEventListener('click', () => {
+  playSfx('purr');
+  document.getElementById('walker').classList.add('paused');
+  overlays.ai.classList.add('open');
+  document.getElementById('cursor-fx-canvas').style.display = 'none';
+  setTimeout(() => document.getElementById('aiInput').focus(), 100);
+});
+
+/* ============================================================
+   音乐
+   ============================================================ */
+const player = new Audio('music1.mp3');
+player.loop = true;
+let musicOn = false;
+
+const musicVibeEl = document.getElementById('music-vibe');
+
+document.getElementById('hs-music').addEventListener('click', () => {
+  if (musicOn) {
+    player.pause(); musicOn = false; hsMusicOff();
+    musicVibeEl.classList.remove('on');      // ← 去掉 .on，自动淡出
+  } else {
+    player.play();  musicOn = true;  hsMusicOn();
+    musicVibeEl.classList.add('on');         // ← 加上 .on，自动淡入
+  }
+});
+
+function hsMusicOn() {
+  const hs = document.getElementById('hs-music');
+  const rect = hs.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+
+  const rp = document.getElementById('ripple');
+  rp.style.left = cx + 'px';
+  rp.style.top = cy + 'px';
+  rp.innerHTML = '';
+  rp.classList.add('on');
+
+  for (let i = 0; i < 3; i++) {
+    const w = document.createElement('div');
+    w.className = 'wave';
+    const size = 40 + i * 14;
+    w.style.width = size + 'px';
+    w.style.height = size + 'px';
+    w.style.animationDelay = (i * 0.5) + 's';
+    rp.appendChild(w);
+  }
+
+  hs.style.borderColor = 'rgba(255, 90, 190, 0.95)';
+  hs.style.boxShadow = '0 0 28px rgba(255, 90, 190, 0.9)';
+}
+
+function hsMusicOff() {
+  document.getElementById('ripple').classList.remove('on');
+  document.getElementById('ripple').innerHTML = '';
+  const hs = document.getElementById('hs-music');
+  hs.style.borderColor = 'transparent';
+  hs.style.boxShadow = 'none';
+}
+
+/* ============================================================
+   音乐 Vibe GIF - 位置和缩放（跟随背景图）
+   ============================================================ */
+/* 编辑下面 2 个值来调位置 */
+const MUSIC_VIBE_CFG = {
+  x: 45.1,        // 在背景图宽度上的百分比位置（0~100），参考 music 热点 44.2%
+  y: 63.7         // 在背景图高度上的百分比位置（0~100），比热点 67.5% 高一点
+};
+
+function placeMusicVibe() {
+  const el = document.getElementById('music-vibe');
+  if (!el) return;
+  const bgImg = new Image();
+  bgImg.src = BG_IMG_SRC;      // 复用你现有的 BG_IMG_SRC
+
+  const doPlace = () => {
+    const imgW = bgImg.naturalWidth;
+    const imgH = bgImg.naturalHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    const scale = Math.max(vw / imgW, vh / imgH);
+    const renderW = imgW * scale;
+    const renderH = imgH * scale;
+    const offsetX = (vw - renderW) / 2;
+    const offsetY = (vh - renderH) / 2;
+
+    const x = offsetX + renderW * (MUSIC_VIBE_CFG.x / 100);
+    const y = offsetY + renderH * (MUSIC_VIBE_CFG.y / 100);
+
+    el.style.width = (renderW * 0.017) + 'px';   // 背景图渲染宽度的 1.7%
+    el.style.left = x + 'px';
+    el.style.top  = y + 'px';
+    el.style.transform = 'translate(-50%, -50%)';   /* 让 x/y 代表 GIF 中心 */
+  };
+  
+  if (bgImg.complete && bgImg.naturalWidth) {
+    doPlace();
+  } else {
+    bgImg.onload = doPlace;
+  }
+}
+
+window.addEventListener('load', placeMusicVibe);
+window.addEventListener('resize', placeMusicVibe);
+placeMusicVibe();
+
+/* ============================================================
+   鱼缸 - 位置、尺寸、鱼、泡泡
+   ============================================================ */
+const FISH_TANK_CFG = {
+  x: 45.4,              // 中心 X（背景图宽度百分比）
+  y: 56,              // 中心 Y（背景图高度百分比）
+  w: 5.3,             // 宽度（背景图宽度百分比）
+  h: 6.5,             // 高度（背景图高度百分比）
+  fishSizePercent: 12,// 每条鱼占鱼缸宽度的百分比
+  bubblePercent: 2, // 泡泡直径占鱼缸宽度的百分比
+};
+
+const FISH_COLORS = [
+  { body: '#FF8C42', tail: '#C03410', light: '#FFB380', dark: '#B04A10' },
+  { body: '#51C5C7', tail: '#286061', light: '#A7FEFF', dark: '#3C9394' },
+  { body: '#FA92FB', tail: '#8F2790', light: '#FCC3FD', dark: '#C034C1' },
+  { body: '#FFD27A', tail: '#A07010', light: '#FFF2C8', dark: '#C0940A' },
+];
+
+const fishes = FISH_COLORS.map((c, i) => ({
+  el: null,
+  x: 0, y: 0,
+  dir: i % 2 === 0 ? 1 : -1,
+  speed: 0.125 + Math.random() * 0.4,
+  phase: Math.random() * Math.PI * 2,
+  bobAmp: 4 + Math.random() * 6,
+  color: c,
+  paused: false,
+}));
+
+let tankW = 0, tankH = 0, fishSize = 0;
+let tankInited = false;
+
+function placeFishTank() {
+  const el = document.getElementById('fish-tank');
+  if (!el) return;
+  const bgImg = new Image();
+  bgImg.src = BG_IMG_SRC;
+
+  const doPlace = () => {
+    const imgW = bgImg.naturalWidth;
+    const imgH = bgImg.naturalHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    const scale = Math.max(vw / imgW, vh / imgH);
+    const renderW = imgW * scale;
+    const renderH = imgH * scale;
+    const offsetX = (vw - renderW) / 2;
+    const offsetY = (vh - renderH) / 2;
+
+    const w = renderW * (FISH_TANK_CFG.w / 100);
+    const h = renderH * (FISH_TANK_CFG.h / 100);
+    const cx = offsetX + renderW * (FISH_TANK_CFG.x / 100);
+    const cy = offsetY + renderH * (FISH_TANK_CFG.y / 100);
+
+    el.style.left = (cx - w / 2) + 'px';
+    el.style.top  = (cy - h / 2) + 'px';
+    el.style.width  = w + 'px';
+    el.style.height = h + 'px';
+
+    // 鱼的大小 = 鱼缸宽度 × fishSizePercent
+    tankW = w;
+    tankH = h;
+    fishSize = w * (FISH_TANK_CFG.fishSizePercent / 100);
+
+    // 已经建过鱼的话，只更新尺寸
+    if (tankInited) {
+      document.querySelectorAll('#fish-tank .fish').forEach(f => {
+        f.style.width  = fishSize + 'px';
+        f.style.height = fishSize + 'px';
+      });
+    }
+  };
+
+  if (bgImg.complete && bgImg.naturalWidth) doPlace();
+  else bgImg.onload = doPlace;
+}
+
+function initFishTank() {
+  const tank = document.getElementById('fish-tank');
+  if (!tank || tankInited) return;
+
+  // 等 placeFishTank 先跑一遍，确保 tankW/tankH/fishSize 有值
+  placeFishTank();
+
+  requestAnimationFrame(() => {
+    if (!tankW || !tankH) {
+      // 背景图还没加载完，等一会儿重试
+      setTimeout(initFishTank, 200);
+      return;
+    }
+
+    tankInited = true;
+
+    // 建 4 条鱼
+    fishes.forEach((f, i) => {
+      const seg = tankW / 4;
+      f.x = seg * i + seg * (0.2 + Math.random() * 0.6);
+      f.y = tankH * (0.3 + Math.random() * 0.45);
+      f.homeX = f.x;          // 记住原始位置
+      f.homeY = f.y;
+      f.homeDir = f.dir;
+      f.mode = 'free';        // 自由游动模式
+
+      const el = document.createElement('div');
+      el.className = 'fish';
+      el.style.width  = fishSize + 'px';
+      el.style.height = fishSize + 'px';
+      el.innerHTML = `
+        <svg viewBox="0 0 32 32" shape-rendering="crispEdges">
+          <g fill="${f.color.tail}">
+            <rect x="4"  y="14" width="2" height="2"/>
+            <rect x="2"  y="12" width="2" height="2"/>
+            <rect x="2"  y="16" width="2" height="2"/>
+            <rect x="2"  y="10" width="1" height="2"/>
+            <rect x="2"  y="18" width="1" height="2"/>
+          </g>
+          <g fill="${f.color.body}">
+            <rect x="6"  y="12" width="16" height="8"/>
+            <rect x="8"  y="10" width="12" height="2"/>
+            <rect x="8"  y="20" width="12" height="2"/>
+            <rect x="20" y="13" width="4" height="6"/>
+            <rect x="22" y="14" width="4" height="4"/>
+          </g>
+          <g fill="${f.color.light}">
+            <rect x="10" y="12" width="10" height="2"/>
+          </g>
+          <g fill="${f.color.dark}">
+            <rect x="8"  y="18" width="12" height="2"/>
+          </g>
+          <rect x="23" y="14" width="2" height="2" fill="#FFFFFF"/>
+          <rect x="24" y="14" width="1" height="1" fill="#000000"/>
+        </svg>`;
+      tank.appendChild(el);
+      f.el = el;
+    });
+
+    // 启动鱼动画
+    requestAnimationFrame(updateFishes);
+
+    // 启动泡泡
+    bubbleLoop();
+    setTimeout(spawnBubble, 800);
+  });
+}
+
+function updateFishes() {
+  const half = fishSize / 2;
+
+  fishes.forEach(f => {
+    // 暂停：不动
+    if (f.paused) {
+      const scaleX = f.dir === 1 ? 1 : -1;
+      f.el.style.transform =
+        `translate(${f.x - half}px, ${f.y - half}px) scaleX(${scaleX})`;
+      return;
+    }
+
+    // 聚集/返回模式：向目标点插值移动
+    if (f.mode === 'gather' || f.mode === 'return') {
+      const tx = f.mode === 'gather' ? f.targetX : f.homeX;
+      const ty = f.mode === 'gather' ? f.targetY : f.homeY;
+      f.x += (tx - f.x) * 0.08;
+      f.y += (ty - f.y) * 0.08;
+
+      // 移动方向决定朝向
+      if (Math.abs(tx - f.x) > 0.5) {
+        f.dir = tx > f.x ? 1 : -1;
+      }
+
+      const scaleX = f.dir === 1 ? 1 : -1;
+      f.el.style.transform =
+        `translate(${f.x - half}px, ${f.y - half}px) scaleX(${scaleX})`;
+      return;
+    }
+
+    // 自由游动：水平来回 + 上下浮动
+    f.x += f.speed * f.dir;
+
+    if (f.x > tankW - half) { f.x = tankW - half; f.dir = -1; }
+    else if (f.x < half)    { f.x = half;        f.dir = 1;  }
+
+    f.phase += 0.03;
+    const bob = Math.sin(f.phase) * f.bobAmp;
+    const drawY = f.y + bob;
+
+    const scaleX = f.dir === 1 ? 1 : -1;
+    f.el.style.transform =
+      `translate(${f.x - half}px, ${drawY - half}px) scaleX(${scaleX})`;
+  });
+
+  requestAnimationFrame(updateFishes);
+}
+
+function spawnBubble() {
+  const tank = document.getElementById('fish-tank');
+  if (!tank) return;
+  const b = document.createElement('div');
+  b.className = 'bubble';
+  b.style.left = (tankW * (0.15 + Math.random() * 0.7)) + 'px';
+  b.style.top  = (tankH - 8) + 'px';
+  const size = tankW * (FISH_TANK_CFG.bubblePercent / 100) * (1.2 + Math.random() * 0.6);
+  b.style.width  = size + 'px';
+  b.style.height = size + 'px';
+  tank.appendChild(b);
+  setTimeout(() => b.remove(), 4200);
+}
+
+function bubbleLoop() {
+  const next = 1000 + Math.random() * 1500;
+  setTimeout(() => {
+    spawnBubble();
+    bubbleLoop();
+  }, next);
+}
+
+window.addEventListener('load', initFishTank);  
+window.addEventListener('resize', () => {
+  placeFishTank();
+  // resize 后如果鱼已经建好，只更新尺寸
+  if (tankInited) {
+    document.querySelectorAll('#fish-tank .fish').forEach(f => {
+      f.style.width  = fishSize + 'px';
+      f.style.height = fishSize + 'px';
+    });
+  }
+  placeFoodBag();
+});
+
+/* 点击鱼缸：所有鱼暂停 1 秒 + 头顶冒气泡 */
+document.getElementById('fish-tank').addEventListener('click', () => {
+  playSfx('bubble');
+  // 暂停所有鱼
+  fishes.forEach(f => { f.paused = true; });
+
+  // 每条鱼头顶冒 2~3 个小气泡
+  fishes.forEach((f, idx) => {
+    // 错开一点，避免所有气泡同时出现
+    const delay = idx * 80 + Math.random() * 100;
+
+    setTimeout(() => {
+      const count = 2 + Math.floor(Math.random() * 2);   // 2~3 个
+      for (let i = 0; i < count; i++) {
+        const b = document.createElement('div');
+        b.className = 'fish-pause-bubble';
+        // 在鱼的位置附近，随机偏移
+        const bx = f.x + (Math.random() - 0.5) * fishSize * 0.6;
+        const by = f.y - fishSize * 0.3 - i * 6;
+        const size = 3 + Math.random() * 4;
+        b.style.left = bx + 'px';
+        b.style.top  = by + 'px';
+        b.style.width  = size + 'px';
+        b.style.height = size + 'px';
+        b.style.animationDelay = (i * 0.15) + 's';
+        document.getElementById('fish-tank').appendChild(b);
+        setTimeout(() => b.remove(), 1500);
+      }
+    }, delay);
+  });
+
+  // 1 秒后恢复
+  setTimeout(() => {
+    fishes.forEach(f => { f.paused = false; });
+  }, 1000);
+});
+
+/* ============================================================
+   鱼食袋 - 位置和尺寸（跟随热点）
+   ============================================================ */
+function placeFoodBag() {
+  const el = document.getElementById('food-bag');
+  const hs = document.getElementById('hs-feed');
+  if (!el || !hs) return;
+
+  const rect = hs.getBoundingClientRect();
+  const size = 96;   // 袋子显示尺寸
+
+  el.style.left = (rect.left + rect.width / 2 - size / 2) + 55 + 'px';
+  el.style.top  = (rect.top  - size - 10) + 40 + 'px';
+  el.style.width  = size + 'px';
+  el.style.height = size + 'px';
+}
+
+/* ============================================================
+   喂鱼：点击鱼食热点 → 袋子出现 → 倒鱼食 → 鱼聚集 → 散开
+   ============================================================ */
+let feedCount = 0;
+const FEED_GOAL = 5;
+  
+let feeding = false;
+
+document.getElementById('hs-feed').addEventListener('click', () => {
+  if (feeding) return;
+  feeding = true;
+  
+  const bagEl = document.getElementById('food-bag');
+  const tankEl = document.getElementById('fish-tank');
+
+  // 定位袋子
+  placeFoodBag();
+
+  // 保存鱼的原始位置（用来最后归位）
+  fishes.forEach(f => {
+    f.homeY = f.y;
+    f.homeDir = f.dir;
+  });
+
+  // ===== 1. 袋子淡入 =====
+  bagEl.classList.add('on');
+
+  // ===== 2. 袋子开始倾斜（0.3 秒后）=====
+  setTimeout(() => {
+    bagEl.classList.add('tilt');
+  }, 300);
+
+  // ===== 3. 从袋口倒出几粒鱼食（袋子倾斜后）=====
+  setTimeout(() => {
+    const bagRect = bagEl.getBoundingClientRect();
+    for (let i = 0; i < 5; i++) {
+      const p = document.createElement('div');
+      p.className = 'food-pellet';
+      const size = 4 + Math.random() * 3;
+      p.style.width  = size + 'px';
+      p.style.height = size + 'px';
+      // 从袋子左下角（倾斜后是袋口的位置）
+      p.style.left = (bagRect.left + bagRect.width * 0.3) + 'px';
+      p.style.top  = (bagRect.top  + bagRect.height * 0.6) + 'px';
+      p.style.animationDelay = (i * 0.15) + 's';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 2500);
+    }
+  }, 1000);
+
+  // ===== 4. 所有鱼上浮聚集到水面中间（1.2 秒后开始）=====
+  setTimeout(() => {
+    // 水面中间位置（相对鱼缸）
+    const targetX = tankW / 2;
+    const targetY = tankH * 0.1;   // 接近水面但没浮出
+
+    fishes.forEach((f, i) => {
+      // 每条鱼错开一点，避免完全重叠
+      const offsetX = (i - 1.5) * 12;
+      f.targetX = targetX + offsetX;
+      f.targetY = targetY + (i % 2) * 6;
+      f.mode = 'gather';   // 切换到聚集模式
+    });
+  }, 1200);
+
+  // ===== 5. 保持聚集 1 秒后散开（约 3.5 秒后）=====
+  setTimeout(() => {
+    playSfx('water');  
+    fishes.forEach(f => {
+      f.mode = 'return';   // 返回模式
+    });
+  }, 3800);
+
+  // ===== 6. 回到自由游动（约 4.8 秒后）=====
+  setTimeout(() => {
+    fishes.forEach(f => {
+      f.mode = 'free';
+      f.dir = f.homeDir;
+    });
+    bagEl.classList.remove('tilt');
+    bagEl.classList.remove('on');
+    feeding = false;
+
+    // ===== 喂鱼计数 =====
+    feedCount++;
+    if (feedCount === FEED_GOAL) {
+      overlays.stopfeed.classList.add('open');
+      document.getElementById('cursor-fx-canvas').style.display = 'none';
+      playSfx('lose');   // 可选：加个音效
+    }
+  }, 4800);
+});
+  
+/* ============================================================
+   扫雷
+   ============================================================ */
+let mineInited = false;
+function initMine() {
+  if (mineInited) return;
+  mineInited = true;
+
+  const app = document.getElementById('mineApp');
+  app.innerHTML = `
+    <div style="margin-bottom:10px">💣：<span id="mc">10</span></div>
+    <div id="board" style="display:grid;grid-template-columns:repeat(11,32px);gap:2px;background:#333;padding:5px;border-radius:5px"></div>
+    <button id="rst" style="margin-top:10px;padding:6px 16px;background:#4a90d9;color:#fff;border:none;border-radius:4px;cursor:pointer">Restart</button>
+    <div id="msg" style="margin-top:10px;font-weight:bold;height:22px"></div>
+  `;
+
+  const SIZE = 11, MINES = 18;
+  let board = [], revealed = [], flagged = [], over = false;
+  const boardEl = document.getElementById('board');
+  const mcEl = document.getElementById('mc');
+  const msgEl = document.getElementById('msg');
+
+  function init() {
+    board = []; revealed = []; flagged = []; over = false;
+    msgEl.textContent = ''; mcEl.textContent = MINES;
+    for (let i = 0; i < SIZE; i++) {
+      board[i] = []; revealed[i] = []; flagged[i] = [];
+      for (let j = 0; j < SIZE; j++) { board[i][j] = 0; revealed[i][j] = false; flagged[i][j] = false; }
+    }
+    let placed = 0;
+    while (placed < MINES) {
+      const r = (Math.random()*SIZE)|0, c = (Math.random()*SIZE)|0;
+      if (board[r][c] !== -1) { board[r][c] = -1; placed++; }
+    }
+    for (let i = 0; i < SIZE; i++) for (let j = 0; j < SIZE; j++) {
+      if (board[i][j] === -1) continue;
+      let n = 0;
+      for (let di=-1;di<=1;di++) for (let dj=-1;dj<=1;dj++) {
+        const ni=i+di, nj=j+dj;
+        if (ni>=0&&ni<SIZE&&nj>=0&&nj<SIZE&&board[ni][nj]===-1) n++;
+      }
+      board[i][j] = n;
+    }
+    render();
+  }
+
+  function render() {
+    boardEl.innerHTML = '';
+    for (let i = 0; i < SIZE; i++) for (let j = 0; j < SIZE; j++) {
+      const b = document.createElement('button');
+      b.style.cssText = 'width:32px;height:32px;border:none;border-radius:3px;font-weight:bold;font-size:16px;cursor:pointer';
+      if (revealed[i][j]) {
+        b.style.background = board[i][j] === -1 ? '#c0392b' : '#cfcfcf';
+        b.style.color = '#222';
+        b.textContent = board[i][j] === -1 ? '💣' : (board[i][j] > 0 ? board[i][j] : '');
+        b.style.cursor = 'default';
+      } else if (flagged[i][j]) {
+        b.style.background = '#d4a017'; b.textContent = '🚩';
+      } else {
+        b.style.background = '#7a7a7a';
+      }
+      b.addEventListener('click', () => clickCell(i,j));
+      b.addEventListener('contextmenu', e => { e.preventDefault(); toggleFlag(i,j); });
+      boardEl.appendChild(b);
+    }
+  }
+
+  function clickCell(i,j) {
+    if (over || revealed[i][j] || flagged[i][j]) return;
+    if (board[i][j] === -1) {
+      playSfx('lose');
+      revealAll(); msgEl.textContent = '💥 Boom!'; over = true; render();
+      return;
+    }
+    reveal(i,j); render(); checkWin();
+  }
+  function reveal(i,j) {
+    if (i<0||i>=SIZE||j<0||j>=SIZE||revealed[i][j]||flagged[i][j]) return;
+    revealed[i][j] = true;
+    if (board[i][j] === 0) for (let di=-1;di<=1;di++) for (let dj=-1;dj<=1;dj++) reveal(i+di,j+dj);
+  }
+  function toggleFlag(i,j) {
+    if (over || revealed[i][j]) return;
+    flagged[i][j] = !flagged[i][j];
+    mcEl.textContent = MINES - flagged.flat().filter(Boolean).length;
+    render();
+  }
+  function revealAll() {
+    for (let i=0;i<SIZE;i++) for (let j=0;j<SIZE;j++) if (board[i][j]===-1) revealed[i][j]=true;
+  }
+  function checkWin() {
+    let un = 0;
+    for (let i=0;i<SIZE;i++) for (let j=0;j<SIZE;j++) if (!revealed[i][j]) un++;
+    if (un === MINES) {
+      msgEl.textContent = '🎉 You won!';
+      playSfx('win');
+      over = true; revealAll(); render();
+    }
+  }
+
+  document.getElementById('rst').addEventListener('click', () => {
+  playSfx('click');
+  init();
+});
+  init();
+}
+
+/* ============================================================
+   留言板 giscus
+   ============================================================ */
+let giscusLoaded = false;
+function loadGiscus() {
+  if (giscusLoaded) return;
+  giscusLoaded = true;
+  const wrap = document.getElementById('giscusWrap');
+  const s = document.createElement('script');
+  s.src = 'https://giscus.app/client.js';
+  s.setAttribute('data-repo', 'dizhub01/Cloudflare-pages');
+  s.setAttribute('data-repo-id', 'R_kgDOVB8r7Q');
+  s.setAttribute('data-category', 'Announcements');
+  s.setAttribute('data-category-id', 'DIC_kwDOVB8r7c4DHZAP');
+  s.setAttribute('data-mapping', 'pathname');
+  s.setAttribute('data-strict', '0');
+  s.setAttribute('data-reactions-enabled', '1');
+  s.setAttribute('data-emit-metadata', '0');
+  s.setAttribute('data-input-position', 'bottom');
+  s.setAttribute('data-theme', 'dark_dimmed');
+  s.setAttribute('data-lang', 'zh-CN');
+  s.setAttribute('crossorigin', 'anonymous');
+  s.async = true;
+  wrap.appendChild(s);
+}
+
+/* ============================================================
+   台灯开关：切换背景图 + 像素女孩
+   ============================================================ */
+let lampOn = true;
+const bgEl = document.getElementById('bg');
+const lampHotspot = document.getElementById('hs-lamp');
+const girlEl = document.getElementById('pixel-girl');
+
+lampHotspot.addEventListener('click', () => {
+  playSfx('click');
+  lampOn = !lampOn;
+  if (lampOn) {
+    bgEl.style.backgroundImage = "url('bg8.png')";
+    girlEl.src = 'girl_day1.png';
+  } else {
+    bgEl.style.backgroundImage = "url('bg-dark8.png')";
+    girlEl.src = 'girl_night1.png';
+  }
+  // CRT 扫描线（短暂出现后消失）
+  const crt = document.getElementById('crt-overlay');
+  crt.classList.add('on');
+
+  setTimeout(() => {
+    crt.classList.remove('on');
+  }, 300);
+});
+
+/* ============================================================
+   AI 聊天 · glm-5.3-flash
+   ============================================================ */
+const aiMessagesEl = document.getElementById('aiMessages');
+const aiInputEl = document.getElementById('aiInput');
+const aiSendBtn = document.getElementById('aiSend');
+
+const aiHistory = [
+  { role: "system", content: "你是一个乐于助人的助手。" }
+];
+
+function appendMsg(text, role) {
+  const div = document.createElement('div');
+  div.className = 'ai-msg ' + role;
+  div.textContent = text;
+  aiMessagesEl.appendChild(div);
+  aiMessagesEl.scrollTop = aiMessagesEl.scrollHeight;
+  return div;
+}
+
+async function sendToGLM(userText) {
+  aiHistory.push({ role: "user", content: userText });
+
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: userText }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`API error: ${res.status} ${err}`);
+  }
+
+  const data = await res.json();
+  const reply = data.choices?.[0]?.message?.content || "(空回复)";
+  aiHistory.push({ role: "assistant", content: reply });
+  return reply;
+}
+
+async function handleSend() {
+  const text = aiInputEl.value.trim();
+  if (!text || aiSendBtn.disabled) return;
+
+  aiInputEl.value = '';
+  appendMsg(text, 'user');
+
+  aiSendBtn.disabled = true;
+  aiSendBtn.textContent = 'thinking…';
+  const thinkingEl = appendMsg('thinking…', 'sys');
+
+  try {
+    const reply = await sendToGLM(text);
+    thinkingEl.remove();
+    appendMsg(reply, 'bot');
+  } catch (e) {
+    thinkingEl.remove();
+    appendMsg('error：' + e.message, 'sys');
+    console.error(e);
+  } finally {
+    aiSendBtn.disabled = false;
+    aiSendBtn.textContent = 'send';
+    aiInputEl.focus();
+  }
+}
+
+aiSendBtn.addEventListener('click', handleSend);
+aiInputEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); handleSend(); }
+});
+
+/* ============================================================
+   浇水动画 - 点热点播放一次
+   ============================================================ */
+const waterAnimEl = document.getElementById('watering-anim');
+
+let waterCount = 0;
+const WATER_GOAL = 10;
+
+document.getElementById('hs-water').addEventListener('click', () => {
+  playSfx('click');
+  setTimeout(() => playSfx('water'), 1550);
+
+  const hs = document.getElementById('hs-water').getBoundingClientRect();
+  const hotspotCX = hs.left + hs.width / 2;
+  const hotspotCY = hs.top  + hs.height / 2;
+
+  const offsetX = -60;
+  const offsetY = 100;
+
+  waterAnimEl.style.left = (hotspotCX - offsetX) + 'px';
+  waterAnimEl.style.top  = (hotspotCY - offsetY) + 'px';
+
+  waterAnimEl.classList.add('show');
+  clearTimeout(waterAnimEl._timer);
+  waterAnimEl._timer = setTimeout(() => {
+    waterAnimEl.classList.remove('show');
+  }, 3500);
+
+  // ===== 浇水计数 =====
+  waterCount++;
+  if (waterCount === WATER_GOAL) {
+    // 等浇水动画播完再弹彩蛋，避免两个动画打架
+    setTimeout(() => {
+      overlays.thanks.classList.add('open');
+      document.getElementById('cursor-fx-canvas').style.display = 'none';
+      playSfx('win'); 
+    }, 3500);
+  }
+});
+  
+/* ============================================================
+   启动
+   ============================================================ */
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(); });
+
+/* ============================================================
+   鼠标拖尾特效 - 方形
+   ============================================================ */
+(function(){
+  const c = document.getElementById('cursor-fx-canvas');
+  const x = c.getContext('2d');
+  let ps = [], mx = -100, my = -100, inC = false, lm = 0;
+  const MAX = 800, colors = ["#0077b6","#00b4d8","#48cae4","#90e0ef","#023e8a","#0096c7","#00a8e8","#7ec8e3"];
+  const CFG = {count:2, sMin:5, sMax:15, spd:0.5, life:90, grav:-0.02, spread:360, shape:'square'};
+
+  function rz(){ c.width = innerWidth; c.height = innerHeight; }
+  rz(); window.addEventListener('resize', rz);
+
+  function sp(x, y, n) {
+    for (let i = 0; i < n; i++) {
+      if (ps.length >= MAX) break;
+      const a = (Math.random() * CFG.spread * Math.PI / 180) - (CFG.spread < 360 ? CFG.spread / 2 * Math.PI / 180 : 0) - Math.PI / 2;
+      const s = (.5 + Math.random() * 2.5) * CFG.spd;
+      const sz = CFG.sMin + Math.random() * (CFG.sMax - CFG.sMin);
+      const l = CFG.life + Math.floor(Math.random() * CFG.life * .6);
+      ps.push({
+        x, y,
+        vx: Math.cos(a) * s, vy: Math.sin(a) * s,
+        size: sz, life: l, maxL: l,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        shape: CFG.shape,
+        rot: Math.random() * Math.PI * 2, rS: (Math.random() - .5) * .15
+      });
+    }
+  }
+
+  function up() {
+    for (let i = ps.length - 1; i >= 0; i--) {
+      const p = ps[i];
+      p.x += p.vx; p.y += p.vy; p.vy += CFG.grav;
+      p.life--; p.rot += p.rS;
+      if (p.life <= 0) ps.splice(i, 1);
+    }
+  }
+
+  function dr() {
+    x.clearRect(0, 0, c.width, c.height);
+    for (const p of ps) {
+      const a = Math.max(0, p.life / p.maxL);
+      const sc = .4 + a * .6;
+      const sz = p.size * sc;
+      x.save();
+      x.globalAlpha = a;
+      x.fillStyle = p.color;
+      x.shadowColor = p.color;
+      x.shadowBlur = sz * 1.5;
+      x.translate(p.x, p.y);
+      x.rotate(p.rot);
+      switch (p.shape) {
+        case 'circle':
+          x.beginPath(); x.arc(0, 0, sz / 2, 0, Math.PI * 2); x.fill(); break;
+        case 'square':
+          x.fillRect(-sz / 2, -sz / 2, sz, sz); break;
+        case 'star':
+          !function(cx, cy, oR, iR, pts) {
+            x.beginPath();
+            for (let i = 0; i < pts * 2; i++) {
+              const r = i % 2 === 0 ? oR : iR;
+              const ag = (i * Math.PI) / pts - Math.PI / 2;
+              const px = cx + Math.cos(ag) * r;
+              const py = cy + Math.sin(ag) * r;
+              i === 0 ? x.moveTo(px, py) : x.lineTo(px, py);
+            }
+            x.closePath(); x.fill();
+          }(0, 0, sz / 2, sz / 4, 5);
+          break;
+        case 'diamond':
+          x.beginPath(); x.moveTo(0, -sz / 2); x.lineTo(sz / 2, 0);
+          x.lineTo(0, sz / 2); x.lineTo(-sz / 2, 0); x.closePath(); x.fill(); break;
+        default:
+          x.beginPath(); x.arc(0, 0, sz / 2, 0, Math.PI * 2); x.fill();
+      }
+      x.restore();
+    }
+  }
+
+  function loop(t) {
+    if (inC && t - lm < 80) sp(mx, my, CFG.count);
+    up(); dr();
+    requestAnimationFrame(loop);
+  }
+
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; inC = true; lm = performance.now(); });
+  document.addEventListener('mouseleave', () => { inC = false; });
+  document.addEventListener('touchmove', e => {
+    mx = e.touches[0].clientX; my = e.touches[0].clientY; inC = true; lm = performance.now();
+  }, { passive: true });
+  document.addEventListener('touchend', () => { inC = false; });
+
+  requestAnimationFrame(loop);
+})();
+
+/* ============================================================
+   DOS 自检闪屏
+   ============================================================ */
+(function biosBoot() {
+  const biosEl = document.getElementById('bios');
+  const textEl = document.getElementById('bios-text');
+  if (!biosEl || !textEl) return;
+
+  // 同一个标签页只出现一次
+  if (sessionStorage.getItem('bios-shown')) {
+    biosEl.style.display = 'none';
+    return;
+  }
+  sessionStorage.setItem('bios-shown', '1');
+
+  const lines = [
+    'DIZ-BIOS v1.6.66',
+    'Memory Test: 640K OK',
+    'Detecting IDE drives...',
+    '  Coffee level:         LOW',
+    '  Motivation:           NOT FOUND',
+    '  Overthinking process: RUNNING',
+    'Human... Detected 1',
+    'Human verified... GUEST',
+    'Human mood... UNKNOWN',
+    'Loading diz vibes...'
+  ];
+
+  const LINE_DELAY = 180;    // 每行间隔（毫秒）
+  const TOTAL_HOLD = 5000;   // 5 秒后自动开始淡出
+
+  let skipped = false;
+  let finished = false;
+
+  // 逐行打字
+  let i = 0;
+  function typeLine() {
+    if (skipped || i >= lines.length) return;
+    textEl.textContent += lines[i] + '\n';
+    i++;
+    if (i < lines.length) {
+      setTimeout(typeLine, LINE_DELAY);
+    }
+  }
+
+  // 结束：淡出 + 彻底移除
+  function finish() {
+    if (finished) return;
+    finished = true;
+    unlockSfx();               // ← 新增：自动结束时也解锁
+    biosEl.classList.add('fade-out');
+    setTimeout(() => {
+      biosEl.style.display = 'none';
+    }, 700);
+  }
+
+  // 跳过
+  function skip() {
+    if (skipped) return;
+    skipped = true;
+    textEl.textContent = lines.join('\n') + '\n';
+    unlockSfx();               // ← 新增：解锁音效
+    setTimeout(finish, 150);
+  }
+
+  // 事件：点击、触摸、按键，都能跳过
+  biosEl.addEventListener('click', skip);
+  biosEl.addEventListener('touchstart', skip, { passive: true });
+  document.addEventListener('keydown', skip, { once: true });
+
+  // 启动
+  setTimeout(typeLine, 200);
+  setTimeout(finish, TOTAL_HOLD);
+})();
+</script>
+</body>
+</html>
